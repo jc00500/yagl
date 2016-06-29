@@ -1,7 +1,7 @@
 function Graph() {
 
     /*
-     * vertices holds a set of Vertex objects.  Each property of vertices is a unique
+     * Vertices holds a set of Vertex objects.  Each property of vertices is a unique
      * vertex id of some Vertex object. That property is then mapped to that Vertex
      * object.
      *
@@ -13,7 +13,7 @@ function Graph() {
     this.connectedComponents = {};
 
     /*
-     * Sets all vertices' visited field to false.
+     * Sets all vertices' visited fields to false.
      */
 	Graph.prototype.setAllVisitedFalse = function () {
 		var i;
@@ -29,9 +29,9 @@ function Graph() {
 
 	Graph.prototype.addVertex = function (v) {
         if (v instanceof Vertex == false) {
-            throw new Error("not a Vertex");
-        } else if (v == null) {
-            throw new Error("attempting to add Null Vertex");
+            throw new Error("addVertex: Not a Vertex");
+        } else if (v.vid == null) {
+            throw new Error("addVertex: Attempting to Add a Vertex Without a Vid");
         }
 
 		var elm = this.findVertex(v.vid);
@@ -52,7 +52,7 @@ function Graph() {
 
     Graph.prototype.findVertex = function (vid) {
 		if (vid === null) {
-			throw new Error("null element");
+			throw new Error("findVertex: Null Element");
         }
 
 		if (this.vertices[vid] === undefined) {
@@ -63,12 +63,13 @@ function Graph() {
 	};
 
     /*
-     * Receives two vertices, checks if they are already in the vertices list and adds
-     * them if they are not found, then places adds the edge to the adjacency list at the VID's of the vertices. returns the created edge
+     * Receives two vertices, checks if they are already in the vertices list and
+     * adds them if they are not found, then adds the edge to the adjacency list at
+     * the VID's of the vertices. returns the created edge
      */
 	Graph.prototype.addEdge = function (v1, v2) {
 		if (v1 === null || v2 === null) {
-			throw new Error("Null VID");
+			throw new Error("addEdge:  Null VID");
         }
 
 		var u = this.findVertex(v1.vid);
@@ -78,7 +79,7 @@ function Graph() {
 
 		var v = this.findVertex(v2.vid);
 		if (v === null) {
-			v = Graph.addVertex(v2);
+			v = this.addVertex(v2);
         }
 
 		var edge = new Edge(u, v);
@@ -95,17 +96,17 @@ function Graph() {
 
         if (this.adjacencyList[v.vid] === undefined) {
             obj = new Object();
-            obj[u] = edge;
+            obj[u.vid] = edge;
             this.adjacencyList[v.vid] = obj;
         } else {
 		    obj = this.adjacencyList[v.vid];
-		    obj[u] = edge;
+		    obj[u.vid] = edge;
             // TODO: check if reassigning u.vid to obj is necessary
 		    this.adjacencyList[v.vid] = obj;
         }
-		/*if (!v.equals(u)) {
-			Graph.unionComponents(u, v);
-        }*/
+		if (!v.equals(u)) {
+			this.unionComponents(u.vid, v.vid);
+        }
         console.log("");
 		console.log("Added: (" + v1.vid + "," + v2.vid + ")");
 
@@ -113,16 +114,18 @@ function Graph() {
 	};
 
     /*
-     *receives a vid and returns the vid or the component connected to iteslf
+     * Receives a vid and returns the vid of the initial component connected to
+     * iteslf.
      */
     Graph.prototype.findComponent = function (vid) {
         if (this.connectedComponents[vid] == null) {
-            console.log("returning null in findComponent");
+            //console.log("returning null in findComponent");
             return null;
         }
 
         var curVid = vid
-		while (!curVid.equals(this.connectedComponents[curVid])) {
+        //console.log("curVid: " + curVid + ", component: " + this.connectedComponents[curVid]);
+		while (curVid !== (this.connectedComponents[curVid])) {
             //console.log("not equal");
 			curVid = this.connectedComponents[curVid];
         }
@@ -130,27 +133,33 @@ function Graph() {
 	};
 
     /*
-     *returns an array containing all the connected vid's
+     * Returns an array containing all the connected vid's.
      */
     Graph.prototype.getAllComponents = function () {
-		var set, v;
+		var set = [], v;
 
-		for (v in this.connectedComponents.keys()) {
-            if (set == null) {
-                set = [];
+		for (v in this.connectedComponents) {
+            if(set.indexOf(this.findComponent(v)) == -1) {
+                set.push(this.findComponent(v));
             }
-			    set.push(this.findComponent(v));
-
         }
 		return set;
 	};
 
     /*
-     *receives two Vid's and pairs them in the connectedComponents set
+     * Receives two Vid's and pairs them in the connectedComponents set.
      */
     Graph.prototype.unionComponents = function (u, v) {
-		this.connectedComponents[this.findComponent(u)] = this.findComponent(v);
-	};
+        if (u == null || v == null) {
+            return -1;
+        }
+        if (this.vertices[u] == undefined || this.vertices[v] == undefined) {
+            return -1;
+        }
+        //console.log("in union with: " + u + ", " + v);
+        this.connectedComponents[this.findComponent(u)] = this.findComponent(v);
+        return 0;
+    };
 
 	/*
      * Takes a starting vid then adds each mapped value to a queue to check.
@@ -158,11 +167,11 @@ function Graph() {
      */
 	Graph.prototype.BFSearch = function (start, elm) {
 		if (elm === null || start === null) {
-			throw new Error("Null Elements");
+			throw new Error("BFSearch: Null Elements");
         }
 
 		if (!this.adjacencyList.hasOwnProperty(start)) {
-			console.log("Search failed: invalid start vertex");
+			console.log("Search Failed: Invalid Start Vertex");
 			return null;
 		}
 
@@ -170,43 +179,30 @@ function Graph() {
 
 		var queue = [];//need array object
 		queue.push(start);
-		vertices[start].setParent(null);
-		vertices[start].setVisited(true);
+		this.vertices[start].setParent(null);
+		this.vertices[start].setVisited(true);
 
-		console.log("Search: ");
+		console.log("Searching for: " + elm);
 		while (queue.length !== 0) {
+            //u is the vid, queue contains unvisited vid's
 			var u = queue.shift();
-            console.log("node: " + vertices[u]);
+            console.log("node: " + u);
 
 			if (u === elm) {
                 console.log("found match");
 				return u;
 			}
 
-			var list = this.adjacencyList[u];
-            //console.log(list.valueOf());
-			//if (list == null) {
-			//	continue;
-            //} why is this here?
+			var obj = this.adjacencyList[u];
+
             var v, i;
-			for (i in list) {
-                v = list[i];
-                //console.log("adding more vertexes to " + list);
-                //console.log(v.data);
-                /*if (e instanceof Edge) {
-				    v = e.getAdjacentVertex(u);
-                } else {
-                    console.log("list does not contain edges");
-                }*/
-                //console.log(typeof v);
-                if(v instanceof Vertex) {
-                    console.log("v is a vertex");
-				    if (v.getVisited() === false) {
-                        v.setVisited(true);
-                        v.setParent(u);
-                        queue.push(v);
-                    }
-				}
+			for (i in obj) {
+                v = this.vertices[i];
+				if (v.getVisited() === false) {
+                    v.setVisited(true);
+                    v.setParent(u);
+                    queue.push(i);
+                }
 			}
 		}
         console.log("BFSearch returns null after search");
@@ -223,10 +219,8 @@ function Graph() {
             //console.log(vid);
             str += vid + ":  ";
             for(u in this.adjacencyList[vid]) {
-                console.log(u);
-                if (u instanceof Edge) {
-                str += u.getAdjacentEdge(vid) + " ";
-                }
+                console.log(typeof u);
+                str += u + " ";
             }
             str += "\n";
         }

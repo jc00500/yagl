@@ -4,12 +4,12 @@ function Vertex(vid, data) {
     this.visited = false;
 
     Vertex.prototype.setParent = function (newParent) {
-        console.log("setting parent");
+        //console.log("setting parent");
         this.parent = newParent;
     };
 
     Vertex.prototype.setVisited = function (visit) {
-        console.log("setting visited");
+        //console.log("setting visited");
         this.visited = visit;
     };
 
@@ -18,11 +18,11 @@ function Vertex(vid, data) {
     };
 
     Vertex.prototype.getVisited = function () {
-        return Vertex.visited;
+        return this.visited;
     };
 
     Vertex.prototype.equals = function (v) {
-        console.log("in equals");
+        //console.log("in equals");
         if (!(v instanceof Vertex))
             return false;
 
