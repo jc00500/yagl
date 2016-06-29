@@ -83,23 +83,23 @@ function Graph() {
 
 		var edge = new Edge(u, v);
         if (this.adjacencyList[u.vid] === undefined) {
-            var obj = [];
-            obj.push(edge);
+            var obj = new Object();
+            obj[v.vid] = edge;
             this.adjacencyList[u.vid] = obj;
         } else {
 		    var obj = this.adjacencyList[u.vid];
-		    obj.push(edge);
+		    obj[v] = edge;
             // TODO: check if reassigning u.vid to obj is necessary
 		    this.adjacencyList[u.vid] = obj;
         }
 
         if (this.adjacencyList[v.vid] === undefined) {
-            obj = [];
-            obj.push(edge);
+            obj = new Object();
+            obj[u] = edge;
             this.adjacencyList[v.vid] = obj;
         } else {
 		    obj = this.adjacencyList[v.vid];
-		    obj.push(edge);
+		    obj[u] = edge;
             // TODO: check if reassigning u.vid to obj is necessary
 		    this.adjacencyList[v.vid] = obj;
         }
