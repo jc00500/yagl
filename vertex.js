@@ -4,7 +4,7 @@ function Vertex(vid, data) {
     this.visited = false;
     //vertices can hav ethe same id if in different graphs
     Vertex.prototype.setParent = function (newParent) {
-        if (!(newParent instanceof Vertex) {
+        if (!(newParent instanceof Vertex)) {
             throw new Error("setParent: attempting to set a vertex parent to a non vertex");
         }
         //console.log("setting parent");
@@ -12,6 +12,9 @@ function Vertex(vid, data) {
     };
 
     Vertex.prototype.setVisited = function (visit) {
+        if (!(visit instanceof Boolean)) {
+            throw new Error("setVisited: attempting to set visited to a non-Boolean");
+        }
         //console.log("setting visited");
         this.visited = visit;
     };
@@ -23,6 +26,8 @@ function Vertex(vid, data) {
     Vertex.prototype.getVisited = function () {
         return this.visited;
     };
+
+    //TODO: Add setter and getter for data field
 
     Vertex.prototype.equals = function (v) {
         //console.log("in equals");

@@ -12,6 +12,14 @@ function Graph() {
     this.adjacencyList = {};
     this.connectedComponents = {};
 
+    // TODO:    getAllVertices()
+    //          getAllEdges()
+    //          removeEdge(v1, v2)
+    //          removeVertex(v)
+    //          findEdge(v1, v2)    // return the edge if exists
+    //          isConnected()       // return true if graph is connected
+    //          findPath(v1, v2)    // return array of vertices that make the path
+
     /*
      * Sets all vertices' visited fields to false.
      */
@@ -212,8 +220,8 @@ function Graph() {
 	};
 
     /*
-     * Prints out a row for each vertex in the vertices list for each vertex adjacent
-     * to it
+     * Prints out a row for each vertex in the vertices list for each
+     * vertex adjacent to it
      */
 	Graph.prototype.print = function () {
 		var str = "";

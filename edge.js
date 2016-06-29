@@ -1,5 +1,6 @@
 function Edge(v1, v2) {
     if (v1 === null || v2 === null) {
+        // TODO: fix error message.  why?
         throw new Error("Invalid Construction of Edge");
     }
 
@@ -7,6 +8,7 @@ function Edge(v1, v2) {
     this.v2 = v2;
 
     Edge.prototype.getAdjacentVertex = function (v) {
+        // TODO: Check that v is a vertex
         if (v === this.v1) {
             return v2;
         } else if (v === this.v2) {
@@ -54,6 +56,13 @@ function Edge(v1, v2) {
     };
 
     Edge.prototype.toString = function () {
-        return this.v1.vid + ", " + this.v2.vid;
+        var str = "";
+        for (prop in this) {
+            if (this.hasOwnProperty(prop)) {
+                prop_str = prop + ": " + this[prop] + ", ";
+                str += prop_str;
+            }
+        }
+        return str;
     };
 }
