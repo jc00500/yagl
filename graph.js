@@ -210,7 +210,7 @@ function Graph() {
 	};
 
     /*
-     * prints out a row for each vertex in the vertices list for each vertex adjacent
+     * Prints out a row for each vertex in the vertices list for each vertex adjacent
      * to it
      */
 	Graph.prototype.print = function () {
