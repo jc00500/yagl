@@ -2,8 +2,11 @@ function Vertex(vid, data) {
     this.vid = vid;
     this.data = data;
     this.visited = false;
-
+    //vertices can hav ethe same id if in different graphs
     Vertex.prototype.setParent = function (newParent) {
+        if (!newParent instanceof Vertex) {
+            throw new Error("setParent: attempting to set a vertex parent to a non vertex");
+        }
         //console.log("setting parent");
         this.parent = newParent;
     };

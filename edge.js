@@ -6,7 +6,7 @@ function Edge(v1, v2) {
     this.v1 = v1;
     this.v2 = v2;
 
-    Edge.prototype.getAdjacentEdge = function (v) {
+    Edge.prototype.getAdjacentVertex = function (v) {
         if (v === this.v1) {
             return v2;
         } else if (v === this.v2) {
@@ -25,6 +25,13 @@ function Edge(v1, v2) {
     };
 
     Edge.prototype.equals = function (e) {
+        if(e == null) {
+            return false;
+        }
+
+        if(!e instanceof Edge) {
+            return false;
+        }
         console.log("hello?");
         console.log(e.getFirst());
         console.log(e.getSecond());
@@ -47,6 +54,6 @@ function Edge(v1, v2) {
     };
 
     Edge.prototype.toString = function () {
-        return this.v1 + ", " + this.v2;
+        return this.v1.vid + ", " + this.v2.vid;
     };
 }

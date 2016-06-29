@@ -40,7 +40,9 @@ function Graph() {
 			this.vertices[v.vid] = v;
 			this.connectedComponents[v.vid] = v.vid;
             console.log("Vertex " + v.vid + " added");
-		}
+		} else {
+            console.log("Given Vid Already Exists. Vertex was not Added to the Graph");
+        }
 
 		return v;
 	};
@@ -226,7 +228,4 @@ function Graph() {
         }
         return str;
 	}
-
 }
-
-
