@@ -29,7 +29,7 @@ function Edge(v1, v2) {
             return false;
         }
 
-        if(!e instanceof Edge) {
+        if(!(e instanceof Edge)) {
             return false;
         }
         console.log("hello?");
