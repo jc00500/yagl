@@ -1,0 +1,47 @@
+function Vertex(vid, data) {
+    this.vid = vid;
+    this.data = data;
+    this.visited = false;
+
+    Vertex.prototype.setParent = function (newParent) {
+        console.log("setting parent");
+        this.parent = newParent;
+    };
+
+    Vertex.prototype.setVisited = function (visit) {
+        console.log("setting visited");
+        this.visited = visit;
+    };
+
+    Vertex.prototype.getParent = function () {
+        return this.parent;
+    };
+
+    Vertex.prototype.getVisited = function () {
+        return Vertex.visited;
+    };
+
+    Vertex.prototype.equals = function (v) {
+        console.log("in equals");
+        if (!(v instanceof Vertex))
+            return false;
+
+        if (this.vid === v.vid) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    Vertex.prototype.toString = function () {
+        var str = "";
+        for (prop in this) {
+            if (this.hasOwnProperty(prop)) {
+                prop_str = prop + ": " + this[prop] + ", ";
+                str += prop_str;
+            }
+        }
+        return str;
+    };
+
+}
