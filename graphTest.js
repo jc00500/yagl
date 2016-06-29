@@ -5,6 +5,7 @@ function assert(expr, mssg) {
         console.log("test passed");
 }
 
+/*
 var v1 = new Vertex("1");
 v1.setVisited(true);
 console.log(v1.toString());
@@ -56,3 +57,38 @@ assert(g.unionComponents("4", "4") === 0, "unable to union existing components")
 
 console.log("testing getAllComponents");
 console.log(g.getAllComponents());
+*/
+
+var v1 = new Vertex(1);
+
+var v2 = new Vertex(2);
+
+var g = new Graph();
+g.addVertex(v1);
+
+console.log(g.print());
+console.log(g.getAllComponents());
+console.log(g.setAllVisitedFalse());
+
+var e1 = g.addEdge(v1, v2);
+
+var v3 = new Vertex(-1);
+g.addVertex(v3);
+
+var e2 = g.addEdge(v3, v3);
+console.log(g.getAllComponents());
+var e3 = g.addEdge(v2, v3);
+console.log(g.getAllComponents());
+
+v1.setParent(e1);
+console.log(v1.getParent());
+
+v1.setVisited(v2);
+console.log(v1.getVisited());
+
+assert(v1.equals(null) == false, "v1 should not equal 1");
+assert(v1.equals(e1) == false, "v1 should not equal e1");
+
+assert(e1.equals(null) == false, "e1 should not equal null");
+assert(e1.equals(v1) == false, "e1 should not equal v1");
+
