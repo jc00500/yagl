@@ -28,6 +28,17 @@ function Vertex(vid, data) {
     };
 
     //TODO: Add setter and getter for data field
+    Vertex.prototype.setData = function (data) {
+        this.data = data;
+    };
+
+    Vertex.prototype.getData = function () {
+        return this.data;
+    };
+
+    Vertex.prototype.getVid = function () {
+        return this.vid;
+    };
 
     Vertex.prototype.equals = function (v) {
         //console.log("in equals");
