@@ -1,11 +1,12 @@
-function Edge(v1, v2) {
-    if (v1 === null || v2 === null) {
+function Edge(eid, v1, v2) {
+    if (v1 === null || v2 === null || eid === null) {
         // TODO: fix error message.  why?
         throw new Error("Invalid Construction of Edge");
     }
-
+    //TODO ADD EID
     this.v1 = v1;
     this.v2 = v2;
+    this.eid = eid;
 
     Edge.prototype.getAdjacentVertex = function (v) {
         // TODO: Check that v is a vertex
@@ -27,32 +28,17 @@ function Edge(v1, v2) {
     };
 
     Edge.prototype.equals = function (e) {
-        if(e == null) {
-            return false;
-        }
-
         if(!(e instanceof Edge)) {
             return false;
         }
-        console.log("hello?");
-        console.log(e.getFirst());
-        console.log(e.getSecond());
-        console.log(this.v1);
-        console.log(this.v2);
 
-        if (!(e instanceof Edge)) {
-            console.log("not an edge");
-            return false;
-        } else if (e.getFirst() === this.v1 && e.getSecond() === this.v2) {
-                return true;
-        } else if (e.getSecond() === this.v1 && e.getFirst() === this.v2) {
-            console.log("second equals 1st");
-            return true;
-        } else {
-            console.log("escape clause");
+        if(e.eid == null) {
             return false;
         }
 
+        if(this.eid = e.eid) {
+           return true
+        }
     };
 
     Edge.prototype.toString = function () {
