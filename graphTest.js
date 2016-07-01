@@ -5,59 +5,6 @@ function assert(expr, mssg) {
         console.log("test passed");
 }
 
-/*
-var v1 = new Vertex("1");
-v1.setVisited(true);
-console.log(v1.toString());
-
-var v2 = new Vertex("2",  null);
-console.log(v2);
-v2.setVisited(true);
-
-var g = new Graph();
-assert(g.addVertex(v1) === v1);
-assert(g.addVertex(v2) === v2);
-
-console.log(g.vertices.length)
-
-g.setAllVisitedFalse();
-console.log(v1.toString());
-console.log(v2.toString());
-
-assert(g.findVertex(new Vertex("dope")) == null);
-assert(g.findVertex(v1.vid) === v1);
-
-var e = new Edge(v1, v2);
-assert(g.addEdge(v1, v2).equals(e), "failed to add edge");
-g.addVertex(new Vertex("3"));
-g.addEdge(new Vertex("3"), new Vertex("4"));
-console.log(g.print());
-
-assert(g.BFSearch("1","2") === "2", "Prog was unableto gind existing vertex");
-assert(g.BFSearch("1", "3") === null, "found un-adjacent vertex");
-assert(g.BFSearch("7", "2") === null, "searched using unreal vid");
-assert(g.BFSearch("3", "3") === "3", "cannot find itself");
-assert(g.BFSearch("3", "1") === null, "found non connected vid");
-
-console.log(g.connectedComponents);
-console.log("testing findComponent");
-assert(g.findComponent(null) === null, "null is not null");
-assert(g.findComponent("7") === null, "found a component that is not connected");
-assert(g.findComponent("1") === "2", "1 did not return 2");
-assert(g.findComponent("2") === "2", "2 did not return 2");
-assert(g.findComponent("3") === "4", "3 did not return 4");
-
-console.log("testing unionComponents");
-assert(g.unionComponents("7", "11") === -1, "unioned bad vid's");
-assert(g.unionComponents("7") === -1, "unioned bad vid's");
-assert(g.unionComponents("1", "11") === -1, "unioned bad vid's");
-assert(g.unionComponents("1") === -1, "unioned bad vid's");
-assert(g.unionComponents() === -1, "unioned bad vid's");
-assert(g.unionComponents("4", "4") === 0, "unable to union existing components");
-
-console.log("testing getAllComponents");
-console.log(g.getAllComponents());
-*/
 
 
 var v1 = new Vertex(1);
@@ -65,18 +12,25 @@ var v2 = new Vertex(2);
 var v3 = new Vertex(3);
 var v4 = new Vertex(4);
 var v5 = new Vertex(5);
+var v6 = new Vertex(6);
+var v7 = new Vertex(7);
+var v8 = new Vertex(8);
+var v9 = new Vertex(9);
 
-var e1 = new Edge(1, v1, v2);
-var e2 = new Edge(2, v2, v3);
-var e3 = new Edge(3, v3, v4);
-var e4 = new Edge(4, v4, v1);
-var e5 = new Edge(5, v4, v1);
-var e6 = new Edge(6, v1, v4);
+var e1 = new Edge(1, v1, v5);
+var e2 = new Edge(2, v2, v5);
+var e3 = new Edge(3, v3, v5);
+var e4 = new Edge(4, v4, v5);
+var e5 = new Edge(5, v5, v5);
+var e6 = new Edge(6, v5, v5);
+var e7 = new Edge(7, v6, v5);
+var e8 = new Edge(8, v7, v5);
+var e9 = new Edge(9, v8, v5);
+var e0 = new Edge(0, v9, v5);
 
 var g = new Graph();
 
-g.addVertex(v1);
-g.addVertex(v2);
+
 
 g.addEdge(e1);
 g.addEdge(e2);
@@ -84,53 +38,28 @@ g.addEdge(e3);
 g.addEdge(e4);
 g.addEdge(e5);
 g.addEdge(e6);
+g.addEdge(e7);
+g.addEdge(e8);
+g.addEdge(e9);
+g.addEdge(e0);
+
+g.removeEdges(1);
 
 
-/*
-console.log(g.getAllVertices());
-//console.log(g.removeVertex(v4.vid));
-//g.removeEdges(3);
-console.log(g.getAllVertices());
-console.log(g.getAllEdges());
 
-//console.log(g.removeVertex(v5.vid));
-
-console.log(g.getAllVertices());
-console.log(g.getAllEdges());
-console.log(g.adjacencyList);
-console.log(g.print());
-*/
+console.log("Number of Components:  " + g.numComponents);
+console.log("components: ");
+for (comp in g.connectedComponents) {
+    console.log(comp + ":  " + g.connectedComponents[comp]);
+}
 
 console.log(g.print());
-g.removeEdges(1,4);
-console.log(g.print());
-/*
-console.log(g.print());
-console.log(g.getAllComponents());
-console.log(g.setAllVisitedFalse());
+//g.addEdge(e5);
+//g.addEdge(e6);
 
-var e1 = g.addEdge(v1, v2);
+/*assert(g.BFSearch(1, 7) === null, "doesn't find random vertex");
+assert(g.BFSearch(1, 4) == 4, "cannot find existing path");*/
 
-var v3 = new Vertex(-1);
-g.addVertex(v3);
+//console.log("path: " + g.findPath(1,9));
 
-var e2 = g.addEdge(v3, v3);
-console.log(g.getAllComponents());
-var e3 = g.addEdge(v2, v3);
-console.log(g.getAllComponents());
-
-v1.setParent(e1);
-console.log(v1.getParent());
-
-v1.setVisited(v2);
-console.log(v1.getVisited());
-
-assert(v1.equals(null) == false, "v1 should not equal 1");
-assert(v1.equals(e1) == false, "v1 should not equal e1");
-
-assert(e1.equals(null) == false, "e1 should not equal null");
-assert(e1.equals(v1) == false, "e1 should not equal v1");
-
-*/
-
-
+console.log("Number of Components:  " + g.numComponents);

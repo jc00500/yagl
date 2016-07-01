@@ -10,7 +10,7 @@ function Edge(eid, v1, v2) {
 
     Edge.prototype.getAdjacentVertex = function (vid) {
         // TODO: Check that v is a vertex
-        console.log("checking for (" + vid + " in " + this.toString());
+        //console.log("checking for (" + vid + " in " + this.toString());
         if (vid == this.v1.vid) {
             //console.log(this.v2.vid);
             return this.v2.vid;

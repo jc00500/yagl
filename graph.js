@@ -12,12 +12,7 @@ function Graph() {
     this.edges = {};
     this.adjacencyList = {};
     this.connectedComponents = {};
-
-    // TODO:
-    //          removeVertex(v)
-    //          findEdge(v1, v2)    // return the edge if exists
-    //          isConnected()       // return true if graph is connected
-    //          findPath(v1, v2)    // return array of vertices that make the path
+    this.numComponents = 0;
 
     /*
      * Returns an array containing all the vertices contained in the graph.
@@ -82,18 +77,23 @@ function Graph() {
     Graph.prototype.removeVertex = function (vid) {
         var v =  this.vertices[vid];
 
+        if (v === undefined) {
+            console.log("removeVertex: can not find vertex");
+            return null;
+        }
+
         var set = this.getAllEdges();
 
-        var edge, e;
-        for(edge in set) {
-            e = set[edge]
+        var eid, e;
+        for(eid in set) {
+            e = set[eid];
             console.log("Inspecting: " + e);
             if(v.equals(e.getFirst()) || v.equals(e.getSecond())) {
                 console.log("found a match");
                 this.removeEdges(e.eid);
             }
         }
-        //TODO: remove all adges attatched to the vertex
+
         delete this.vertices[vid];
         return v;
     }
@@ -101,9 +101,9 @@ function Graph() {
     /*
      * Receives an edge id. Returns found edge if found, else returns null.
      */
-    Graph.prototype.findEdge = function (eid) {
+    Graph.prototype.getEdge = function (eid) {
         if (eid === null) {
-			throw new Error("findEdge: Null Element");
+			throw new Error("getEdge: Null Element");
         }
 
 		if (this.edges[eid] === undefined) {
@@ -141,9 +141,9 @@ function Graph() {
      * it returns null.
      */
 
-    Graph.prototype.findVertex = function (vid) {
+    Graph.prototype.getVertex = function (vid) {
 		if (vid === null) {
-			throw new Error("findVertex: Null Element");
+			throw new Error("getVertex: Null Element");
         }
 
 		if (this.vertices[vid] === undefined) {
@@ -165,30 +165,39 @@ function Graph() {
 	};
 
     /*
+     * Sets all vertices' parent fields to null.
+     */
+    Graph.prototype.removeParents = function () {
+		var i;
+
+        for (i in this.vertices) {
+            this.vertices[i].setParent(null);
+        }
+	};
+
+    /*
      * Checks to see if v is in the list of vertices.  If not, it adds it.
      */
 
 	Graph.prototype.addVertex = function (v) {
         if (v instanceof Vertex == false) {
             throw new Error("addVertex: Not a Vertex");
-        } else if (v.vid == null) {
-            throw new Error("addVertex: Attempting to Add a Vertex Without a Vid");
         }
 
-		var elm = this.findVertex(v.vid);
+		var elm = this.getVertex(v.vid);
 
 		if (elm === null) {
 			this.vertices[v.vid] = v;
 			this.connectedComponents[v.vid] = v.vid;
+            this.numComponents++;
             console.log("Vertex " + v.vid + " added");
-		} else {
-            console.log("Given Vid Already Exists. Vertex was not Added to the Graph");
+		}
+        else {
+            console.log("addVertex: Given Vid Already Exists. Vertex was not Added to the Graph");
         }
 
 		return v;
 	};
-
-
 
     /*
      * Receives an edge, checks if they are already in the vertices list and
@@ -222,14 +231,14 @@ function Graph() {
             }
         }*/
 
-		var u = this.findVertex(v1.vid);
+		var u = this.getVertex(v1.vid);
 		if (u === null) {
 			u = this.addVertex(v1);
         }
         else
             console.log("vertex exists: " + v1.vid);
 
-		var v = this.findVertex(v2.vid);
+		var v = this.getVertex(v2.vid);
 		if (v === null) {
 			v = this.addVertex(v2);
         }
@@ -259,9 +268,11 @@ function Graph() {
             // TODO: check if reassigning u.vid to obj is necessary
 		    this.adjacencyList[v.vid] = obj;
         }
+
 		if (!v.equals(u)) {
 			this.unionComponents(u.vid, v.vid);
         }
+
         console.log("");
 		console.log("Added: (" + v1.vid + "," + v2.vid + ")");
         this.edges[edge.eid] = edge;
@@ -307,14 +318,22 @@ function Graph() {
      */
     Graph.prototype.unionComponents = function (u, v) {
         if (u == null || v == null) {
-            return -1;
+            return;
         }
         if (this.vertices[u] == undefined || this.vertices[v] == undefined) {
-            return -1;
+            return;
         }
         //console.log("in union with: " + u + ", " + v);
-        this.connectedComponents[this.findComponent(u)] = this.findComponent(v);
-        return 0;
+        comp1 = this.findComponent(u);
+        comp2 = this.findComponent(v);
+
+        if ((this.connectedComponents[comp1] == comp1) && (comp1 !== comp2)) {
+            this.numComponents--;
+        }
+
+        this.connectedComponents[comp1] = comp2;
+
+        return;
     };
 
 	/*
@@ -323,7 +342,7 @@ function Graph() {
      */
 	Graph.prototype.BFSearch = function (start, elm) {
 		if (elm === null || start === null) {
-			throw new Error("BFSearch: Null Elements");
+			throw new Error("BFSearch: Null Elements Vid");
         }
 
 		if (!this.adjacencyList.hasOwnProperty(start)) {
@@ -339,9 +358,10 @@ function Graph() {
 		this.vertices[start].setVisited(true);
 
 		console.log("Searching for: " + elm);
+        var u;
 		while (queue.length !== 0) {
             //u is the vid, queue contains unvisited vid's
-			var u = queue.shift();
+			u = queue.shift();
             console.log("node: " + u);
 
 			if (u === elm) {
@@ -351,13 +371,15 @@ function Graph() {
 
 			var obj = this.adjacencyList[u];
 
-            var v, i;
-			for (i in obj) {
-                v = this.vertices[i];
+            var e, i, v;
+			for (eid in obj) {
+                e = this.edges[eid];
+                v = e.getAdjacentVertex(u);
+                v = this.vertices[v];
 				if (v.getVisited() === false) {
                     v.setVisited(true);
-                    v.setParent(u);
-                    queue.push(i);
+                    v.setParent(this.vertices[u]);
+                    queue.push(v.vid);
                 }
 			}
 		}
@@ -365,12 +387,31 @@ function Graph() {
 		return null;
 	};
 
-     Graph.prototype.isConnected = function () {
-
+    Graph.prototype.isConnected = function () {
+        if (this.numComponents > 1) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     Graph.prototype.findPath = function (v1, v2) {
+        if (this.BFSearch(v1, v2) == null) {
+            return null;
+        }
 
+        v1 = this.vertices[v1];
+        v2 = this.vertices[v2];
+
+        var path = [v2.vid];
+
+        var p = v2.getParent();
+        while (p != null) {
+            path.push(p.vid);
+            p = p.getParent();
+        }
+
+        return path;
     }
 
     /*
