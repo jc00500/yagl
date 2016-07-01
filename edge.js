@@ -8,13 +8,17 @@ function Edge(eid, v1, v2) {
     this.v2 = v2;
     this.eid = eid;
 
-    Edge.prototype.getAdjacentVertex = function (v) {
+    Edge.prototype.getAdjacentVertex = function (vid) {
         // TODO: Check that v is a vertex
-        if (v === this.v1) {
-            return v2;
-        } else if (v === this.v2) {
-            return v1;
+        console.log("checking for (" + vid + " in " + this.toString());
+        if (vid == this.v1.vid) {
+            //console.log(this.v2.vid);
+            return this.v2.vid;
+        } else if (vid == this.v2.vid) {
+            //console.log(this.v2.vid);
+            return this.v1.vid;
         } else {
+            //console.log("returning null");
             return null;
         }
     };
@@ -48,6 +52,7 @@ function Edge(eid, v1, v2) {
                 prop_str = prop + ": " + this[prop] + ", ";
                 str += prop_str;
             }
+            str += "\t";
         }
         return str;
     };

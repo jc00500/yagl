@@ -59,13 +59,52 @@ console.log("testing getAllComponents");
 console.log(g.getAllComponents());
 */
 
-var v1 = new Vertex(1);
 
+var v1 = new Vertex(1);
 var v2 = new Vertex(2);
+var v3 = new Vertex(3);
+var v4 = new Vertex(4);
+var v5 = new Vertex(5);
+
+var e1 = new Edge(1, v1, v2);
+var e2 = new Edge(2, v2, v3);
+var e3 = new Edge(3, v3, v4);
+var e4 = new Edge(4, v4, v1);
+var e5 = new Edge(5, v4, v1);
+var e6 = new Edge(6, v1, v4);
 
 var g = new Graph();
-g.addVertex(v1);
 
+g.addVertex(v1);
+g.addVertex(v2);
+
+g.addEdge(e1);
+g.addEdge(e2);
+g.addEdge(e3);
+g.addEdge(e4);
+g.addEdge(e5);
+g.addEdge(e6);
+
+
+/*
+console.log(g.getAllVertices());
+//console.log(g.removeVertex(v4.vid));
+//g.removeEdges(3);
+console.log(g.getAllVertices());
+console.log(g.getAllEdges());
+
+//console.log(g.removeVertex(v5.vid));
+
+console.log(g.getAllVertices());
+console.log(g.getAllEdges());
+console.log(g.adjacencyList);
+console.log(g.print());
+*/
+
+console.log(g.print());
+g.removeEdges(1,4);
+console.log(g.print());
+/*
 console.log(g.print());
 console.log(g.getAllComponents());
 console.log(g.setAllVisitedFalse());
@@ -92,5 +131,6 @@ assert(v1.equals(e1) == false, "v1 should not equal e1");
 assert(e1.equals(null) == false, "e1 should not equal null");
 assert(e1.equals(v1) == false, "e1 should not equal v1");
 
+*/
 
 
