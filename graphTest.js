@@ -43,7 +43,7 @@ g.addEdge(e8);
 g.addEdge(e9);
 g.addEdge(e0);
 
-g.removeEdges(1);
+g.removeVertex(v5);
 
 
 

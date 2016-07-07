@@ -75,6 +75,7 @@ function Graph() {
      * vertex. Returns the vertex.
      */
     Graph.prototype.removeVertex = function (vid) {
+        //TODO: fix connected components for  2-1, 3-1. 4-1. remove 1
         var v =  this.vertices[vid];
 
         if (v === undefined) {
@@ -393,7 +394,7 @@ function Graph() {
         } else {
             return true;
         }
-    }
+    };
 
     Graph.prototype.findPath = function (v1, v2) {
         if (this.BFSearch(v1, v2) == null) {
@@ -412,7 +413,9 @@ function Graph() {
         }
 
         return path;
-    }
+    };
+
+
 
     /*
      * Prints out a row for each vertex in the vertices list for each
@@ -436,4 +439,17 @@ function Graph() {
         }
         return str;
 	}
+
+    Graph.prototype.display = function (scene) {
+        //get each vertex and get its shape properties.
+        var vid;
+        for(vid in this.vertices) {
+            var v = this.vertices[vid];
+            if(v.shape == null) {
+                v.shape = new BABYLON.Mesh.CreateSphere(vid, 10, 1, scene);
+            }
+        }
+
+    }
+
 }

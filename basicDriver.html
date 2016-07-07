@@ -1,17 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 
    <head>
+       <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
       <title>Most Basic Driver</title>
+       <style>
+          html, body {
+              overflow: hidden;
+              width: 100%;
+              height: 100%;
+              margin: 0;
+              padding: 0;
+          }
+
+          #renderCanvas {
+              width: 100%;
+              height: 100%;
+              touch-action: none;
+          }
+       </style>
+
+
    </head>
 
    <body>
+       <canvas id="renderCanvas"></canvas>
+
+       <script src="babylon.2.3.js"></script>
+
        <script src = vertex.js></script>
        <script src = edge.js></script>
-       <!--script src = map.js></script-->
        <script src = graph.js></script>
-       <script src = graphTest.js></script>
-       <!--script src = mapTest.js></script-->
+       <script src = initGraph.js></script>
+       <script src = basic.js></script>
+
    </body>
 
 </html>

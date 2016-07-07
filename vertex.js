@@ -10,6 +10,8 @@ function Vertex(vid, data) {
     });
     this.data = data;
     this.visited = false;
+    //TODO: add assignment for shapes
+    this.spape = undefined;
 
     //TODO: make vid immutable
 
