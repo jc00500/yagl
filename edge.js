@@ -58,8 +58,8 @@ function Edge(eid, v1, v2) {
     };
 }
 
-function weightedEdge(eid, v1, v1, weight) {
-    this.prototype = new Edge();
+function weightedEdge(eid, v1, v2, weight) {
+    this.prototype = new Edge(eid, v1, v2);
     if(typeof weight == "number") {
         this.weight = weight;
     } else {
