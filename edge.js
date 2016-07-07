@@ -57,3 +57,23 @@ function Edge(eid, v1, v2) {
         return str;
     };
 }
+
+function weightedEdge(eid, v1, v1, weight) {
+    this.prototype = new Edge();
+    if(typeof weight == "number") {
+        this.weight = weight;
+    } else {
+        throw new Error("weightedEdge:  weight is not a number");
+    }
+
+    Edge.prototype.getWeight = function () {
+        return this.weight;
+    };
+
+    Edge.prototype.setWeight = function (weight) {
+        if (!(typeof weight == "number")) {
+            throw new Error("setWeight: not setting weight to a number");
+        }
+        this.weight = weight;
+    };
+}
