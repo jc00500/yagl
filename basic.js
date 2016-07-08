@@ -20,7 +20,7 @@ var createScene = function () {
 
     var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
 
-    var g = initializeGraph(g);
+    var g = initializeGraph();
     g.display(scene);
 
 
