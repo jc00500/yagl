@@ -15,6 +15,7 @@ var YAGL;
 
             this.v1 = v1;
             this.v2 = v2;
+            this.mesh = undefined;
         }
 
         Edge.prototype.getEid = function () {
@@ -28,6 +29,12 @@ var YAGL;
         Edge.prototype.getSecond = function () {
             return this.v2;
         };
+
+        Edge.prototype.getMesh = function () {
+            return this.mesh;
+        };
+
+
 
         Edge.prototype.getAdjacentVertex = function (vid) {
             if (vid == this.v1.vid) {
@@ -65,6 +72,9 @@ var YAGL;
             return str;
         };
 
+        Edge.prototype.setMesh = function (mesh) {
+            this.mesh = mesh;
+        };
     /*function weightedEdge(eid, v1, v2, weight) {
         this.prototype = new Edge(eid, v1, v2);
         if(typeof weight == "number") {

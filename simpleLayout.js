@@ -23,13 +23,13 @@ var YAGL;
 
             for(vid in this.graph.vertices) {
                 node = this.graph.vertices[vid];
-                if(node.shape == undefined) {
+                if(node.mesh == undefined) {
                     var size = this.size;
                     console.log("x:  " + x + ", y:  " + y + ", z:  " + z);
                     //var obj = new BABYLON.Mesh.CreateSphere(vid, 10, size, scene);
-                    var obj = new BABYLON.Mesh.CreateSphere("test", 10, size, this.scene, true, BABYLON.Mesh.FRONTSIDE);
+                    node.mesh = new BABYLON.Mesh.CreateSphere("test", 10, size, this.scene, true, BABYLON.Mesh.FRONTSIDE);
                     //console.log("created sphere");
-                    obj.position = new BABYLON.Vector3(x, y, z);
+                    node.mesh.position = new BABYLON.Vector3(x, y, z);
                     this.usedVectors[vid] = [x, y, z]
                     if ((x <= y) && (x <= z)){
                         x += (2 * size);
@@ -47,26 +47,30 @@ var YAGL;
         Layout.prototype.placeLines = function() {
             var edges = this.graph.edges;
             this.removeLines();
-            var lines= [];
+            var lines;
             for(eid in edges) {
-                var v = this.usedVectors[edges[eid].getFirst().getVid()];
-                console.log("v:  " + v);
-                lines.push(new BABYLON.Vector3(v[0], v[1], v[2]));
-                v = this.usedVectors[edges[eid].getSecond().getVid()];
-                console.log("v2:  " + v);
-                lines.push(new BABYLON.Vector3(v[0], v[1], v[2]));
+                lines = [];
+                var vid = edges[eid].getFirst().getVid();
+                console.log("vid:  " + vid);
+                lines.push(this.graph.vertices[vid].mesh.position);
+                vid = edges[eid].getSecond().getVid();
+                console.log("vid2:  " + vid);
+                lines.push(this.graph.vertices[vid].mesh.position);
                 //scene.mesh[eid] = edges[eid];
+                edges[eid].mesh = new BABYLON.Mesh.CreateLines(eid, lines, this.scene);
             }
-            new BABYLON.Mesh.CreateLines("lines", lines, this.scene);
+            /*new BABYLON.Mesh.CreateLines("lines", lines, this.scene);*/
         };
 
         /*
          * Removes all lines from the graph.
          */
         Layout.prototype.removeLines = function() {
-            for(i = 0; i < this.scene.meshes.length; i++) {
-                if(this.scene.meshes[i].name == "lines") {
-                    this.scene.meshes[i].dispose();
+            var edges = this.graph.edges
+            for(eid in edges) {
+
+                if(edges[eid].mesh !== undefined) {
+                    edges[eid].mesh.dispose();
                 }
             }
         };

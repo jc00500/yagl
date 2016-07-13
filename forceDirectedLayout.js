@@ -1,6 +1,12 @@
-var Layout = YAGL.Layout = {};
-	Layout.ForceDirected = function(scene, graph, stiffness, repulsion, damping, minEnergyThreshold) {
+var YAGL;
+(function (YAGL) {
+
+    var ForceDirected = (function () {
+
+	function ForceDirected(scene, graph, size, stiffness, repulsion, damping, minEnergyThreshold) {
+        this.scene = scene;
 		this.graph = graph;
+        this.size = (size == undefined) ? 1: size;
 		this.stiffness = stiffness; // spring stiffness constant
 		this.repulsion = repulsion; // repulsion constant
 		this.damping = damping; // velocity damping factor
@@ -8,25 +14,25 @@ var Layout = YAGL.Layout = {};
 
 		this.nodePoints = {}; // keep track of points associated with nodes
 		this.edgeSprings = {}; // keep track of springs associated with edges
-	};
+	}
 
 	//any data value is shape properties
-    Layout.ForceDirected.prototype.point = function(node) {
+    ForceDirected.prototype.point = function(node) {
 		if (!(node.id in this.nodePoints)) {
 			var mass = 1.0;
-			this.nodePoints[node.id] = new Layout.ForceDirected.Point(new Vector3(random(), random(). random()), mass);
+			this.nodePoints[node.id] = new Layout.ForceDirected.Point(new Vector3((Math.random() * 50), (Math.random() * 50), (Math.random() * 50)), mass);
 		}
 
 		return this.nodePoints[node.id];
 	};
 
     //create a pipe along an edge
-	Layout.ForceDirected.prototype.spring = function(edge) {
+	ForceDirected.prototype.spring = function(edge) {
 		if (!(edge.id in this.edgeSprings)) {
 			var length = 1.0;
 
 			var existingSpring = false;
-
+//change this stuff
 			var from = this.graph.getEdges(edge.source, edge.target);
 			from.forEach(function(e) {
 				if (existingSpring === false && e.id in this.edgeSprings) {
@@ -35,9 +41,10 @@ var Layout = YAGL.Layout = {};
 			}, this);
 
 			if (existingSpring !== false) {
-				return new Layout.ForceDirected.Spring(existingSpring.point1, existingSpring.point2, 0.0, 0.0);
+				return new ForceDirected.Spring(existingSpring.point1, existingSpring.point2, 0.0, 0.0, 0.0);
 			}
-
+//change this stuff
+            //array of edges from start to finish from adjacency list
 			var to = this.graph.getEdges(edge.target, edge.source);
 			from.forEach(function(e){
 				if (existingSpring === false && e.id in this.edgeSprings) {
@@ -46,7 +53,7 @@ var Layout = YAGL.Layout = {};
 			}, this);
 
 			if (existingSpring !== false) {
-				return new Layout.ForceDirected.Spring(existingSpring.point2, existingSpring.point1, 0.0, 0.0);
+				return new ForceDirected.Spring(existingSpring.point2, existingSpring.point1, 0.0, 0.0, 0.0);
 			}
 
 			this.edgeSprings[edge.id] = new Layout.ForceDirected.Spring(
@@ -58,24 +65,27 @@ var Layout = YAGL.Layout = {};
 	};
 
 	// callback should accept two arguments: Node, Point
-	Layout.ForceDirected.prototype.eachNode = function(callback) {
+	ForceDirected.prototype.eachNode = function(callback) {
 		var t = this;
+        //write a for in with vertices
 		this.graph.nodes.forEach(function(n){
 			callback.call(t, n, t.point(n));
 		});
 	};
 
 	// callback should accept two arguments: Edge, Spring
-	Layout.ForceDirected.prototype.eachEdge = function(callback) {
+	ForceDirected.prototype.eachEdge = function(callback) {
 		var t = this;
+         //write a for in with edges
 		this.graph.edges.forEach(function(e){
 			callback.call(t, e, t.spring(e));
 		});
 	};
 
 	// callback should accept one argument: Spring
-	Layout.ForceDirected.prototype.eachSpring = function(callback) {
+	ForceDirected.prototype.eachSpring = function(callback) {
 		var t = this;
+         //write a for in with edges
 		this.graph.edges.forEach(function(e){
 			callback.call(t, t.spring(e));
 		});
@@ -83,7 +93,7 @@ var Layout = YAGL.Layout = {};
 
 
 	// Physics stuff
-	Layout.ForceDirected.prototype.applyCoulombsLaw = function() {
+	ForceDirected.prototype.applyCoulombsLaw = function() {
 		this.eachNode(function(n1, point1) {
 			this.eachNode(function(n2, point2) {
 				if (point1 !== point2)
@@ -100,7 +110,7 @@ var Layout = YAGL.Layout = {};
 		});
 	};
 
-	Layout.ForceDirected.prototype.applyHookesLaw = function() {
+	ForceDirected.prototype.applyHookesLaw = function() {
 		this.eachSpring(function(spring){
 			var d = spring.point2.p.subtract(spring.point1.p); // the direction of the spring
 			var displacement = spring.length - d.magnitude();
@@ -112,7 +122,7 @@ var Layout = YAGL.Layout = {};
 		});
 	};
 
-	Layout.ForceDirected.prototype.attractToCentre = function() {
+	ForceDirected.prototype.attractToCentre = function() {
 		this.eachNode(function(node, point) {
 			var direction = point.p.multiply(-1.0);
 			point.applyForce(direction.multiply(this.repulsion / 50.0));
@@ -120,7 +130,7 @@ var Layout = YAGL.Layout = {};
 	};
 
 
-	Layout.ForceDirected.prototype.updateVelocity = function(timestep) {
+	ForceDirected.prototype.updateVelocity = function(timestep) {
 		this.eachNode(function(node, point) {
 			// Is this, along with updatePosition below, the only places that your
 			// integration code exist?
@@ -129,7 +139,7 @@ var Layout = YAGL.Layout = {};
 		});
 	};
 
-	Layout.ForceDirected.prototype.updatePosition = function(timestep) {
+	ForceDirected.prototype.updatePosition = function(timestep) {
 		this.eachNode(function(node, point) {
 			// Same question as above; along with updateVelocity, is this all of
 			// your integration code?
@@ -138,7 +148,7 @@ var Layout = YAGL.Layout = {};
 	};
 
 	// Calculate the total kinetic energy of the system
-	Layout.ForceDirected.prototype.totalEnergy = function(timestep) {
+	ForceDirected.prototype.totalEnergy = function(timestep) {
 		var energy = 0.0;
 		this.eachNode(function(node, point) {
 			var speed = point.v.magnitude();
@@ -150,21 +160,21 @@ var Layout = YAGL.Layout = {};
 
 	var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }; // stolen from coffeescript, thanks jashkenas! ;-)
 
-	Springy.requestAnimationFrame = __bind(this.requestAnimationFrame ||
+	/*Springy.requestAnimationFrame = __bind(this.requestAnimationFrame ||
 		this.webkitRequestAnimationFrame ||
 		this.mozRequestAnimationFrame ||
 		this.oRequestAnimationFrame ||
 		this.msRequestAnimationFrame ||
 		(function(callback, element) {
 			this.setTimeout(callback, 10);
-		}), this);
+		}), this);*/
 
 
 	/**
 	 * Start simulation if it's not running already.
 	 * In case it's running then the call is ignored, and none of the callbacks passed is ever executed.
 	 */
-	Layout.ForceDirected.prototype.start = function(render, onRenderStop, onRenderStart) {
+	/*ForceDirected.prototype.start = function(render, onRenderStop, onRenderStart) {
 		var t = this;
 
 		if (this._started) return;
@@ -192,9 +202,9 @@ var Layout = YAGL.Layout = {};
 
 	Layout.ForceDirected.prototype.stop = function() {
 		this._stop = true;
-	}
+	}*/
 
-	Layout.ForceDirected.prototype.tick = function(timestep) {
+	ForceDirected.prototype.tick = function(timestep) {
 		this.applyCoulombsLaw();
 		this.applyHookesLaw();
 		this.attractToCentre();
@@ -203,9 +213,10 @@ var Layout = YAGL.Layout = {};
 	};
 
 	// Find the nearest point to a particular position
-	Layout.ForceDirected.prototype.nearest = function(pos) {
+	ForceDirected.prototype.nearest = function(pos) {
 		var min = {node: null, point: null, distance: null};
 		var t = this;
+        //write a for in loop here
 		this.graph.nodes.forEach(function(n){
 			var point = t.point(n);
 			var distance = point.p.subtract(pos).magnitude();
@@ -219,7 +230,7 @@ var Layout = YAGL.Layout = {};
 	};
 
 	// returns [bottomleft, topright]
-	Layout.ForceDirected.prototype.getBoundingBox = function() {
+	ForceDirected.prototype.getBoundingBox = function() {
         //get shape size
 		var bottomleft = new Vector3(-2,-2,-2);
 		var topright = new Vector3(2,2,2);
@@ -230,6 +241,12 @@ var Layout = YAGL.Layout = {};
 			}
 			if (point.p.y < bottomleft.y) {
 				bottomleft.y = point.p.y;
+			}
+            if (point.p.z < bottomleft.z) {
+				bottomleft.z = point.p.z;
+			}
+			if (point.p.z > topright.z) {
+				topright.z = point.p.z;
 			}
 			if (point.p.x > topright.x) {
 				topright.x = point.p.x;
@@ -246,9 +263,7 @@ var Layout = YAGL.Layout = {};
 
 
 	// Vector
-	/*var Vector = Springy.Vector = function(x, y) {
-		this.x = x;
-		this.y = y;
+	/*var Vector = new BABYLON.Vector3()
 	};
 
 	Vector.random = function() {
@@ -284,21 +299,26 @@ var Layout = YAGL.Layout = {};
 	};*/
 
 	// Point
-	Layout.ForceDirected.Point = function(position, mass) {
+	ForceDirected.Point = function(position, mass) {
 		this.p = position; // position
 		this.m = mass; // mass
 		this.v = new Vector3(0, 0, 0); // velocity
 		this.a = new Vector3(0, 0, 0); // acceleration
 	};
 
-	Layout.ForceDirected.Point.prototype.applyForce = function(force) {
+	ForceDirected.Point.prototype.applyForce = function(force) {
 		this.a = this.a.add(force.divide(this.m));
 	};
 
 	// Spring
-	Layout.ForceDirected.Spring = function(point1, point2, length, k) {
+	ForceDirected.Spring = function(point1, point2, length, k) {
 		this.point1 = point1;
 		this.point2 = point2;
 		this.length = length; // spring length at rest
 		this.k = k; // spring constant (See Hooke's law) .. how stiff the spring is
 	};
+
+    return ForceDirected;
+    }());
+    YAGL.Vertex = Vertex;
+})(YAGL || (YAGL = {}));

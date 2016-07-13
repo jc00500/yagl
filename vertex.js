@@ -16,8 +16,9 @@ var YAGL;
             this.data = data;
             this.visited = false;
             this.component = this.vid;
-            this.spape = undefined;
+            this.mesh = undefined;
             this.parent = null;
+
         }
 
         /***********
@@ -44,8 +45,8 @@ var YAGL;
             return this.parent;
         };
 
-        Vertex.prototype.getShape = function () {
-            return this.shape;
+        Vertex.prototype.getMesh = function () {
+            return this.mesh;
         };
 
         /***********
@@ -75,6 +76,10 @@ var YAGL;
 
         Vertex.prototype.setData = function (data) {
             this.data = data;
+        };
+
+        Vertex.prototype.setMesh = function (mesh) {
+            this.mesh = mesh;
         };
 
         Vertex.prototype.equals = function (v) {
