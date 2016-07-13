@@ -18,11 +18,13 @@ var createScene = function () {
     // Dim the light a small amount
     light.intensity = 0.5;
 
-    var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
+    //var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
 
     var g = initializeGraph();
-    g.display(scene);
-
+    var cheese = new YAGL.Layout(scene, g);
+    cheese.placeVertices();
+    cheese.placeLines();
+    //cheese.removeLines();
 
 
 
