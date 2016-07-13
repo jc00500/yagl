@@ -4,151 +4,242 @@ var YAGL;
      var Graph = (function () {
 
         /*
-         * Vertices holds a set of Vertex objects.  Each property of vertices is a unique
-         * vertex id of some Vertex object. That property is then mapped to that Vertex
-         * object.
-         *
-         * adjacencyList maps vids to Objects that hold one or more (vid:edge) properties.
+         * Graph is a model for a graph data structure.
+         *      vertices contains a set of YAGL.Vertex objects.
+         *      edges contains a set of YAGL.Edge objects.
+         *      adjacencyList is a mapping of vids to arrays of eids.
+         *      connectedComponents is a mapping of component root vids to rank values.
          */
+
         function Graph() {
-            this.vertices = {};
-            this.edges = {};
-            this.adjacencyList = {};
-            this.connectedComponents = {};
-            this.numComponents = 0;
+            this.vertices = {};             // vid -> Vertex
+            this.edges = {};                // eid -> Edge
+            this.adjacencyList = {};        // vid -> [eid1 -> vid, eid2 -> vid, ...]
+            this.connectedComponents = {};  // root vid -> rank (int)
         }
 
+        /*******************************************************************************
+         *                         ADD AND REMOVE METHODS
+         *******************************************************************************/
+
         /*
-         * Returns an array containing all the vertices contained in the graph.
+         * addVertex() takes a YAGL.Vertex object as an argument.  It checks to see if v is
+         * in this.vertices.  If not, it adds it to the list of vertices, adds a
+         * connected component, and returns v.  Otherwise returns null.
          */
-        Graph.prototype.getAllVertices = function () {
-            var v, set = [];
-            for (v in this.vertices) {
-                set.push(this.vertices[v]);
+
+        Graph.prototype.addVertex = function (v) {
+            if (v instanceof YAGL.Vertex == false) {
+                throw new Error("addVertex: argument not a Vertex");
             }
-            return set;
+
+            var u = this.getVertex(v.vid);
+
+            if (u === null) {
+                this.vertices[v.vid] = v;
+                this.connectedComponents[v.vid] = 0;  // set rank to 0
+
+                console.log("addVertex: vertex added (" + v.vid + ")");
+            }
+            else {
+                console.log("addVertex: vertex not added, already exists (" + v.vid + ")");
+                return null;
+            }
+
+            return v;
         };
 
         /*
-         * Retrns an array of all the edges in the edges
+         * addEdge() receives an YAGL.Edge as an argument.  It checks if the vertices in the edge
+         * are in the list of vertices.  If not, it adds them. It then adds the edge's eid to the
+         * vertices' adjacency lists and combines components if the vertices are different.
+         * Last, it adds the edge to the list of edges and returns the edge eid.
          */
-        Graph.prototype.getAllEdges = function () {
-            var set = [], eid;
 
-            for(eid in this.edges) {
-                set.push(this.edges[eid]);
-            }
-            return set;
-        };
-
-        /*
-         * Receives an edge id then removes the edge from the graph's adjacencyList and
-         * edges
-         */
-        Graph.prototype.removeEdges = function (id1, id2) {
-            if(id1 == null) {
-                throw new Error("removeEdges:  Passed null arguments");
+        Graph.prototype.addEdge = function (e) {
+            if(e instanceof YAGL.Edge == false) {
+                throw new Error("addEdge: argument not an Edge");
             }
 
-            if(id2 == null) {
-                var edge =  this.edges[id1];
-                if(edge == null) {
-                    console.log("removeEdges:  eid doesn't exist");
-                    return null;
-                }
-                console.log("in remove edge, vid1 is: " + edge.getFirst().getVid());
-                console.log("in remove edge, vid2 is: " + edge.getSecond().getVid());
-                console.log("eid of edge: " + edge.eid);
+            if (this.getEdge(e.eid) != null) {
+                console.log("addEdge: edge not added, already exists (" + e.eid + ")");
+                return null;
+            }
 
-                delete this.adjacencyList[edge.getFirst().getVid()][edge.eid];
-                delete this.adjacencyList[edge.getSecond().getVid()][edge.eid];
-                delete this.edges[id1];
+            var v1 = e.v1;
+            var v2 = e.v2;
+
+            var u = this.getVertex(v1.vid);
+            if (u === null) {
+                u = this.addVertex(v1);
+            }
+            else {
+                console.log("addEdge: vertex already exists (" + v1.vid + ")");
+            }
+
+            var v = this.getVertex(v2.vid);
+            if (v === null) {
+                v = this.addVertex(v2);
+            }
+            else {
+                console.log("addEdge: vertex already exists (" + v2.vid + ")");
+            }
+
+//            console.log("(vid1)" + u.vid + " (vid2)" + v.vid + " (eid)" + e.eid);
+
+            if (this.adjacencyList[u.vid] === undefined) {
+                var obj = new Object();
+                obj[e.eid] = v.vid;
+                this.adjacencyList[u.vid] = obj;
             } else {
-                var list = this.getEdges(id1, id2);
-                for (eid in list) {
-                    this.removeEdges(list[eid]);
-                }
+                var obj = this.adjacencyList[u.vid];
+                obj[e.eid] = v.vid;
+                // TODO: check if reassigning u.vid to obj is necessary
+                this.adjacencyList[u.vid] = obj;
             }
 
-            return edge;
+            if (this.adjacencyList[v.vid] === undefined) {
+                obj = new Object();
+                obj[e.eid] = u.vid;
+                this.adjacencyList[v.vid] = obj;
+            } else {
+                obj = this.adjacencyList[v.vid];
+                obj[e.eid] = u.vid;
+                // TODO: check if reassigning u.vid to obj is necessary
+                this.adjacencyList[v.vid] = obj;
+            }
+
+            if (!v.equals(u)) {
+                this.unionComponents(u.vid, v.vid);
+            }
+
+//            console.log("");
+//            console.log("Added: (" + v1.vid + "," + v2.vid + ")");
+            this.edges[e.eid] = e;
+
+            console.log("addEdge: edge added (" + e.eid + ")");
+            return e;
         };
 
-
         /*
-         * Receives a vid then removes all edges containing it then removes the
-         * vertex. Returns the vertex.
+         * removeVertex() takes a vid as an argument.  All edges containing the vertex are
+         * removed from the adjacency list, the vertex is removed from the list of vertices
+         * and the component for the vertex deleted. -1 is returned upon error, 0 is returned
+         * upon success.
          */
+
         Graph.prototype.removeVertex = function (vid) {
             //TODO: fix connected components for  2-1, 3-1. 4-1. remove 1
             var v =  this.vertices[vid];
 
             if (v === undefined) {
-                console.log("removeVertex: can not find vertex");
-                return null;
+                console.log("removeVertex: vid does not exist (" + vid + ")");
+                return -1;
             }
-
-            var set = this.getAllEdges();
 
             var eid, e;
-            for(eid in set) {
-                e = set[eid];
-                console.log("Inspecting: " + e);
-                if(v.equals(e.getFirst()) || v.equals(e.getSecond())) {
-                    console.log("found a match");
-                    this.removeEdges(e.eid);
+            for(eid in this.edges) {
+                e = this.edges[eid];
+                if(v.equals(e.v1) || v.equals(e.v2)) {
+                    this.removeEdges(e.v1.vid, e.v2.vid);
                 }
             }
 
+            delete this.connectedComponents[vid];
             delete this.vertices[vid];
-            return v;
-        };
+            console.log("removeVertex: vertex removed (" + vid + ")");
+            return 0;
+        }
 
-        /*
-         * Receives an edge id. Returns found edge if found, else returns null.
-         */
-        Graph.prototype.getEdge = function (eid) {
-            if (eid === null) {
-                throw new Error("getEdge: Null Element");
+         /*
+          * removeEdge() takes an edge eid as an argument, removes the edge from
+          * both the adjacent vertices's adjacencey lists and the edge list.  If one
+          * of the vertices are now in a new component, the old component is split.
+          * -1 is returned upon error, 0 is returned upon success.
+          */
+
+         Graph.prototype.removeEdge = function (eid) {
+            if(eid == null) {
+                throw new Error("removeEdge: argument is null or undefined");
             }
 
-            if (this.edges[eid] === undefined) {
-                return null;
-            } else {
-                return this.edges[eid];
-            }
-        };
-
-        /*
-         * Receives two vids and returns an array containing the eid's of all adges
-         * containing the given vid's
-         */
-        Graph.prototype.getEdges = function (vid1, vid2) {
-            if(vid1 == null || vid2 == null) {
-                console.log("getEdges:  searching for an edge with a null vertex");
-                return null;
+            var edge =  this.edges[eid];
+            if(edge == null) {
+                console.log("removeEdge: eid does not exist (" + eid + ")");
+                return -1;
             }
 
-            var set = [], edge;
+//            console.log("removeEdge: vid1 is: " + edge.v1.vid);
+//            console.log("removeEdge: vid2 is: " + edge.v2.vid);
+//            console.log("removeEdge: eid of edge: " + edge.eid);
 
-            for (eid in this.edges) {
-                edge = this.edges[eid];
-                if ((vid1 === edge.v1.vid && vid2 === edge.v2.vid) ||
-                    (vid1 === edge.v2.vid && vid2 === edge.v1.vid)) {
-                    set.push(edge.eid);
+            var vid1 = edge.v1.vid;
+            var vid2 = edge.v2.vid;
+
+            // Remove edge from adjacency lists
+            delete this.adjacencyList[vid1][eid];
+            delete this.adjacencyList[vid2][eid];
+
+            // Delete the edge
+            delete this.edges[eid];
+
+            // Update components
+            var oldRootVid = this.findComponent(vid1);
+
+            if (this.BFSearch(vid1, oldRootVid) == null) {
+                this.updateComponentLinks(vid1, oldRootVid);
+                this.updateComponentLinks(oldRootVid, vid1);
+                if (this.connectedComponents[vid1] === undefined) {
+                    //TODO: fix the rank
+                    this.connectedComponents[vid1] = 0;
+                }
+            } else if (this.BFSearch(vid2, oldRootVid) == null) {
+                this.updateComponentLinks(vid2, oldRootVid);
+                this.updateComponentLinks(oldRootVid, vid2);
+                if (this.connectedComponents[vid2] === undefined) {
+                    //TODO: fix the rank
+                    this.connectedComponents[vid2] = 0;
                 }
             }
 
-            return set;
+            console.log("removeEdge: edge removed (" + eid + ")");
+            return 0;
         };
 
         /*
-         * Returns a vertex if vid is a property of the vertices object. Otherwise
-         * it returns null.
+         * removeEdges() takes two vids as arguments. The function removes all edges connecting
+         * those vertices.  The number of edges removed is returned.
+         */
+
+        Graph.prototype.removeEdges = function (vid1, vid2) {
+            if(vid1 == null || vid2 == null) {
+                throw new Error("removeEdges:  arguments are null or undefined");
+            }
+
+            var list = this.getEdges(vid1, vid2);
+            var i;
+            var count = 0;
+
+            for (i in list) {
+                this.removeEdge(list[i].eid);
+                count++;
+            }
+
+            return count;
+        };
+
+        /*******************************************************************************
+         *                             GETTER METHODS
+         *******************************************************************************/
+
+        /*
+         * getVertex() takes a vid as an argument and returns the vertex with the given vid
+         * or null if none exists.
          */
 
         Graph.prototype.getVertex = function (vid) {
-            if (vid === null) {
-                throw new Error("getVertex: Null Element");
+            if (vid == null) {
+                throw new Error("getVertex: null or undefined argument");
             }
 
             if (this.vertices[vid] === undefined) {
@@ -159,285 +250,329 @@ var YAGL;
         };
 
         /*
-         * Sets all vertices' visited fields to false.
-         */
-        Graph.prototype.setAllVisitedFalse = function () {
-            var i;
-
-            for (i in this.vertices) {
-                this.vertices[i].visited = false;
-            }
-        };
-
-        /*
-         * Sets all vertices' parent fields to null.
-         */
-        Graph.prototype.removeParents = function () {
-            var i;
-
-            for (i in this.vertices) {
-                this.vertices[i].setParent(null);
-            }
-        };
-
-        /*
-         * Checks to see if v is in the list of vertices.  If not, it adds it.
+         * getAllVertices() returns an array containing the vertices in the graph.
          */
 
-        Graph.prototype.addVertex = function (v) {
-            if (v instanceof YAGL.Vertex == false) {
-                throw new Error("addVertex: Not a Vertex");
-            }
-
-            var elm = this.getVertex(v.vid);
-
-            if (elm === null) {
-                this.vertices[v.vid] = v;
-                this.connectedComponents[v.vid] = v.vid;
-                this.numComponents++;
-                console.log("Vertex " + v.vid + " added");
-            }
-            else {
-                console.log("addVertex: Given Vid Already Exists. Vertex was not Added to the Graph");
-            }
-
-            return v;
-        };
-
-        /*
-         * Receives an edge, checks if they are already in the vertices list and
-         * adds them if they are not found, then adds the edge to the adjacency list at
-         * the VID's of the vertices. Returns edge ID. Returns null if edge is
-         * invalid.
-         */
-        Graph.prototype.addEdge = function (edge) {
-            if(!(edge instanceof YAGL.Edge)) {
-                throw new Error("addEdge:  Did not reciece an edge");
-            }
-            if (edge.eid == null) {
-                throw new Error("addEdge:  Edge receiced does not contain an id");
-            }
-
-            var v1 = edge.getFirst();
-            var v2 = edge.getSecond();
-
-            if (v1 === null || v2 === null) {
-                throw new Error("addEdge:  Null Vertices");
-            }
-
-            //var edge = new Edge(eid, u, v);
-            var set = this.getAllEdges(), e;
-
-    /*        for (e in set) {
-                //console.log(set[e]);
-                if (set[e].equals(edge)) {
-                    console.log("Attempting to add an existing edge.");
-                    return null;
-                }
-            }*/
-
-            var u = this.getVertex(v1.vid);
-            if (u === null) {
-                u = this.addVertex(v1);
-            }
-            else
-                console.log("vertex exists: " + v1.vid);
-
-            var v = this.getVertex(v2.vid);
-            if (v === null) {
-                v = this.addVertex(v2);
-            }
-            else
-                console.log("vertex exists: " + v2.vid);
-
-            console.log("(vid1)" + u.vid + " (vid2)" + v.vid + " (eid)" + edge.eid);
-
-            if (this.adjacencyList[u.vid] === undefined) {
-                var obj = new Object();
-                obj[edge.eid] = v.vid;
-                this.adjacencyList[u.vid] = obj;
-            } else {
-                var obj = this.adjacencyList[u.vid];
-                obj[edge.eid] = v.vid;
-                // TODO: check if reassigning u.vid to obj is necessary
-                this.adjacencyList[u.vid] = obj;
-            }
-
-            if (this.adjacencyList[v.vid] === undefined) {
-                obj = new Object();
-                obj[edge.eid] = u.vid;
-                this.adjacencyList[v.vid] = obj;
-            } else {
-                obj = this.adjacencyList[v.vid];
-                obj[edge.eid] = u.vid;
-                // TODO: check if reassigning u.vid to obj is necessary
-                this.adjacencyList[v.vid] = obj;
-            }
-
-            if (!v.equals(u)) {
-                this.unionComponents(u.vid, v.vid);
-            }
-
-            console.log("");
-            console.log("Added: (" + v1.vid + "," + v2.vid + ")");
-            this.edges[edge.eid] = edge;
-
-            return edge.eid;
-        };
-
-        /*
-         * Receives a vid and returns the vid of the initial component connected to
-         * iteslf.
-         */
-        Graph.prototype.findComponent = function (vid) {
-            if (this.connectedComponents[vid] == null) {
-                //console.log("returning null in findComponent");
-                return null;
-            }
-
-            var curVid = vid
-            //console.log("curVid: " + curVid + ", component: " + this.connectedComponents[curVid]);
-            while (curVid !== (this.connectedComponents[curVid])) {
-                //console.log("not equal");
-                curVid = this.connectedComponents[curVid];
-            }
-            return curVid;
-        };
-
-        /*
-         * Returns an array containing all the connected vid's.
-         */
-        Graph.prototype.getAllComponents = function () {
-            var set = [], v;
-
-            for (v in this.connectedComponents) {
-                if(set.indexOf(this.findComponent(v)) == -1) {
-                    set.push(this.findComponent(v));
-                }
+        Graph.prototype.getAllVertices = function () {
+            var vid, set = [];
+            for (vid in this.vertices) {
+                set.push(this.vertices[vid]);
             }
             return set;
         };
 
         /*
-         * Receives two Vid's and pairs them in the connectedComponents set.
+         * getEdge() takes an eid as an argument and returns the edge with the given eid
+         * or null if none exists.
          */
-        Graph.prototype.unionComponents = function (u, v) {
-            if (u == null || v == null) {
-                return;
-            }
-            if (this.vertices[u] == undefined || this.vertices[v] == undefined) {
-                return;
-            }
-            //console.log("in union with: " + u + ", " + v);
-            comp1 = this.findComponent(u);
-            comp2 = this.findComponent(v);
 
-            if ((this.connectedComponents[comp1] == comp1) && (comp1 !== comp2)) {
-                this.numComponents--;
+        Graph.prototype.getEdge = function (eid) {
+            if (eid == null) {
+                throw new Error("getEdge: null or undefined argument");
             }
 
-            this.connectedComponents[comp1] = comp2;
-
-            return;
+            if (this.edges[eid] === undefined) {
+                return null;
+            } else {
+                return this.edges[eid];
+            }
         };
 
         /*
-         * Takes a starting vid then adds each mapped value to a queue to check.
-         * returns the vid of the found element found. else reurns null
+         * getEdges() takes two vids as arguments and returns an array containing the edges that
+         * connect the two vertices.
          */
-        Graph.prototype.BFSearch = function (start, elm) {
-            if (elm === null || start === null) {
-                throw new Error("BFSearch: Null Elements Vid");
-            }
 
-            if (!this.adjacencyList.hasOwnProperty(start)) {
-                console.log("Search Failed: Invalid Start Vertex");
+        Graph.prototype.getEdges = function (vid1, vid2) {
+            if(vid1 == null || vid2 == null) {
+                console.log("getEdges: args are null or undefined");
                 return null;
             }
 
-            this.setAllVisitedFalse();
+            //console.log("finding edges for " + vid1 + " " + vid2);
+            var set = [];
+            var e;
 
-            var queue = [];//need array object
-            queue.push(start);
-            this.vertices[start].setParent(null);
-            this.vertices[start].setVisited(true);
-
-            console.log("Searching for: " + elm);
-            var u;
-            while (queue.length !== 0) {
-                //u is the vid, queue contains unvisited vid's
-                u = queue.shift();
-                console.log("node: " + u);
-
-                if (u === elm) {
-                    console.log("found match");
-                    return u;
-                }
-
-                var obj = this.adjacencyList[u];
-
-                var e, i, v;
-                for (eid in obj) {
-                    e = this.edges[eid];
-                    v = e.getAdjacentVertex(u);
-                    v = this.vertices[v];
-                    if (v.getVisited() === false) {
-                        v.setVisited(true);
-                        v.setParent(this.vertices[u]);
-                        queue.push(v.vid);
-                    }
+            for (eid in this.edges) {
+                e = this.edges[eid];
+                if ((vid1 === e.v1.vid && vid2 === e.v2.vid) ||
+                    (vid1 === e.v2.vid && vid2 === e.v1.vid)) {
+                    set.push(e);
                 }
             }
-            console.log("BFSearch returns null after search");
-            return null;
+            //console.log(set);
+            return set;
         };
 
+        /*
+         * getAllEdges() returns an array containing the edges in the graph.
+         */
+
+        Graph.prototype.getAllEdges = function () {
+            var set = [];
+            var eid;
+
+            for(eid in this.edges) {
+                set.push(this.edges[eid]);
+            }
+            return set;
+        };
+
+        /*******************************************************************************
+         *                              SETTER METHODS
+         *******************************************************************************/
+
+        /*
+         * Sets all vertices' visited fields to false.
+         */
+
+        Graph.prototype.setAllVisitedFalse = function () {
+            var vid;
+
+            for (vid in this.vertices) {
+                this.vertices[vid].visited = false;
+            }
+        };
+
+        /*******************************************************************************
+         *                            COMPONENT METHODS
+         *******************************************************************************/
+
+        /*
+         * isConnected() returns true if every pair of vertices are connected by a path in
+         * the graph.
+         */
+
         Graph.prototype.isConnected = function () {
-            if (this.numComponents > 1) {
+            var count = 0;
+            var vid;
+            for (vid in this.connectedComponents) {
+                count++;
+            }
+
+            if (count > 1) {
                 return false;
             } else {
                 return true;
             }
         };
 
-        Graph.prototype.findPath = function (v1, v2) {
-            if (this.BFSearch(v1, v2) == null) {
+        /*
+         * Receives a vid and returns the vid of the root component connected to
+         * iteslf.
+         */
+
+        Graph.prototype.findComponent = function (vid) {
+            var compVid = this.vertices[vid].component;
+
+            if (compVid == vid) {
+                return vid;
+            } else {
+                return this.findComponent(compVid);
+            }
+        };
+
+        /*
+         * Receives two vid's and if in different components puts them in the same
+         * component.
+         */
+
+        Graph.prototype.unionComponents = function (vid1, vid2) {
+            if (vid1 == null || vid2 == null) {
+                return;
+            }
+
+            if (this.vertices[vid1] == undefined || this.vertices[vid2] == undefined) {
+                return;
+            }
+
+            //console.log("in union with: " + u + ", " + v);
+            var root1vid = this.findComponent(vid1);
+            var root2vid = this.findComponent(vid2);
+
+            if (root1vid == root2vid) {
+                return;
+            }
+
+            var rank1 = this.connectedComponents[root1vid];
+            var rank2 = this.connectedComponents[root2vid];
+
+            if (rank1 > rank2) {
+                this.vertices[root2vid].component = root1vid;
+                this.connectedComponents[root2vid] = rank2++;
+                delete this.connectedComponents[root2vid];
+            } else {
+                this.vertices[root1vid].component = root2vid;
+                this.connectedComponents[root1vid] = rank1++;
+                delete this.connectedComponents[root1vid];
+            }
+
+            return;
+        };
+
+         /*
+          * splitComponent() takes two vids as arguments and updates the
+          * connectedComponent values for all of the children of the vids.
+          */
+
+        Graph.prototype.updateComponentLinks = function (newRootVid, oldRootVid) {
+            if (newRootVid === null || oldRootVid === null) {
+                console.log("splitComponent: null vid");
+            }
+
+            if (!this.adjacencyList.hasOwnProperty(newRootVid) || !this.adjacencyList.hasOwnProperty(oldRootVid)) {
+                console.log("splitComponent: vid does not exist");
+                return;
+            }
+
+            /*
+             * Traverse graph.  For each vertex v that is visited, set v.component to
+             * it's parent's vid.
+             */
+
+            this.vertices[newRootVid].component = newRootVid;
+            var queue = []; //queue contains unvisited vid's
+            queue.push(newRootVid);
+
+            this.setAllVisitedFalse();
+            this.vertices[newRootVid].setVisited(true);
+
+            var curVid;   // curVid is the current vid taken out of the queue
+            while (queue.length != 0) {
+                curVid = queue.shift();
+                console.log("processing children of " + curVid);
+                var adjList = this.adjacencyList[curVid];
+
+                var v;
+                for (eid in adjList) {
+                    v = this.vertices[this.edges[eid].getAdjacentVertex(curVid)];
+                    if (v.getVisited() === false) {
+                        v.setVisited(true);
+                        v.component = curVid;
+                        console.log("setting child " + v.vid);
+                        queue.push(v.vid);
+                    }
+                }
+            }
+
+            return null;
+        };
+
+        /*
+         * TODO FIX: Returns an array containing all the vids connected to the
+         * vid passed in as an arg.
+         */
+
+        Graph.prototype.getConnectedVertices = function () {
+            var set = [], vid;
+
+            for (vid in this.connectedComponents) {
+                if(set.indexOf(this.findComponent(vid)) == -1) {
+                    set.push(this.findComponent(vid));
+                }
+            }
+            return set;
+        };
+
+        /*******************************************************************************
+         *                             SEARCH METHODS
+         *******************************************************************************/
+
+        /*
+         * Takes a starting vid then adds each mapped value to a queue to check.
+         * returns the vid of the found element found. else reurns null
+         */
+
+        Graph.prototype.BFSearch = function (startVid, stopVid) {
+            if (startVid == null || stopVid == null) {
+                throw new Error("BFSearch: null or undefined arguments");
+            }
+
+            if (!this.adjacencyList.hasOwnProperty(startVid)) {
+                console.log("Search Failed: Invalid start vertex");
                 return null;
             }
 
-            v1 = this.vertices[v1];
-            v2 = this.vertices[v2];
+            var queue = []; //need array object
+            queue.push(startVid);
 
-            var path = [v2.vid];
+            this.setAllVisitedFalse();
+            this.vertices[startVid].setVisited(true);
 
-            var p = v2.getParent();
-            while (p != null) {
-                path.push(p.vid);
-                p = p.getParent();
+            this.vertices[startVid].setParent(startVid);
+
+            var curVid;
+            while (queue.length !== 0) {
+                curVid = queue.shift();
+
+                //console.log("inspecting node: " + curVid);
+                if (curVid === stopVid) {
+                    //console.log("found match");
+                    return curVid;
+                }
+
+                var list = this.adjacencyList[curVid];
+
+                var e, adjVid, v;
+                for (eid in list) {
+                    e = this.edges[eid];
+                    adjVid = e.getAdjacentVertex(curVid);
+                    v = this.vertices[adjVid];
+                    if (v.getVisited() === false) {
+                        v.setVisited(true);
+                        v.setParent(curVid);
+                        //console.log("Set parent of (" + v.vid + ") to (" + curVid +")");
+                        queue.push(adjVid);
+                    }
+                }
+            }
+            //console.log("BFSearch: returning null");
+            return null;
+        };
+
+        /*
+         * getPath() returns an array of vids from vid2 to vid1.
+         */
+
+        Graph.prototype.getPath = function (vid1, vid2) {
+            if (this.BFSearch(vid1, vid2) == null) {
+                return null;
             }
 
+            var path = [vid2];
+
+            var parentVid = this.vertices[vid2].getParent();
+
+            while (parentVid != vid1) {
+                //console.log("adding vid (" + parentVid + ")");
+                path.push(parentVid);
+                parentVid = this.vertices[parentVid].getParent();
+            }
+
+            path.push(vid1);
             return path;
         };
 
-
+        /*******************************************************************************
+         *                            DISPLAY METHODS
+         *******************************************************************************/
 
         /*
          * Prints out a row for each vertex in the vertices list for each
          * vertex adjacent to it
          */
-        Graph.prototype.print = function () {
+
+        Graph.prototype.toString = function () {
             var str = "";
 
             for(vid1 in this.vertices) {
-                console.log("vid1:  " + vid1);
+                //console.log("vid1:  " + vid1);
                 str += vid1 + ":  ";
                 for(eid in this.adjacencyList[vid1]) {
-                    //for (eid in obj) {
-                        console.log("eid " + eid);
+                        //console.log("eid " + eid);
                         edge = this.edges[eid];
                         vid2 = edge.getAdjacentVertex(vid1);
                         str += vid2 + " ";
-                    //}
                 }
                 str += "\n";
             }
@@ -453,8 +588,8 @@ var YAGL;
                     v.shape = new BABYLON.Mesh.CreateSphere(vid, 10, 1, scene);
                 }
             }
-
         };
+
         return Graph;
     }());
     YAGL.Graph = Graph;

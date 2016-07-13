@@ -1,73 +1,83 @@
 var YAGL;
 (function (YAGL) {
 
-    var Vertex = (function () {
+    var Vertex = (function (vid) {
 
         function Vertex(vid, data) {
-
-        if (vid == null) {
-            throw new Error("Vertex: vid is null or undefined");
-        }
-
-        //this.vid = vid;
-        Object.defineProperty(this, "vid", {
-            writable:  false, value:  vid
-        });
-        this.data = data;
-        this.visited = false;
-        //TODO: add assignment for shapes
-        this.spape = undefined;
-        }
-        //TODO: make vid  & eid immutable
-
-        //vertices can hav ethe same id if in different graphs
-        Vertex.prototype.setParent = function (newParent) {
-            if (newParent === null) {
-                delete this.parent;
-                return;
+            if (!isInt(vid)) {
+                throw new Error("Vertex: vid is not a number");
             }
 
-            if (!(newParent instanceof Vertex)) {
-                throw new Error("setParent: attempting to set a vertex parent to a non vertex");
-            }
+            Object.defineProperty(this, "vid", {
+                writable:  false,
+                value:  vid
+            });
 
-            //console.log("setting parent");
-            this.parent = newParent;
-        };
-
-        Vertex.prototype.setVisited = function (visit) {
-            //console.log(visit);
-            //console.log(typeof visit);
-            if (!(typeof visit == "boolean")) {
-                throw new Error("setVisited: attempting to set visited to a non-Boolean");
-            }
-            //console.log("setting visited");
-            this.visited = visit;
-        };
-
-        Vertex.prototype.getParent = function () {
-            return this.parent;
-        };
-
-        Vertex.prototype.getVisited = function () {
-            return this.visited;
-        };
-
-        //TODO: Add setter and getter for data field
-        Vertex.prototype.setData = function (data) {
             this.data = data;
+            this.visited = false;
+            this.component = this.vid;
+            this.spape = undefined;
+            this.parent = null;
+        }
+
+        /***********
+         * GETTERS
+         ***********/
+
+        Vertex.prototype.getVid = function () {
+            return this.vid;
         };
 
         Vertex.prototype.getData = function () {
             return this.data;
         };
 
-        Vertex.prototype.getVid = function () {
-            return this.vid;
+        Vertex.prototype.getVisited = function () {
+            return this.visited;
+        };
+
+        Vertex.prototype.getComponent = function () {
+            return this.component;
+        };
+
+        Vertex.prototype.getParent = function () {
+            return this.parent;
+        };
+
+        Vertex.prototype.getShape = function () {
+            return this.shape;
+        };
+
+        /***********
+         * SETTERS
+         ***********/
+
+        Vertex.prototype.setParent = function (vid) {
+            if (vid === null) {     // we allow null vid
+                this.parent = null;
+                return;
+            }
+
+            if (!isInt(vid)) {
+                throw new Error("setParent: argument is not an int");
+            }
+
+            this.parent = vid;
+        };
+
+        Vertex.prototype.setVisited = function (visit) {
+            if (!(typeof visit == "boolean")) {
+                throw new Error("setVisited: attempting to set visited to a non-Boolean value");
+            }
+
+            this.visited = visit;
+        };
+
+        Vertex.prototype.setData = function (data) {
+            this.data = data;
         };
 
         Vertex.prototype.equals = function (v) {
-            //console.log("in equals");
             if (!(v instanceof Vertex))
                 return false;
 
@@ -79,15 +89,16 @@ var YAGL;
         };
 
         Vertex.prototype.toString = function () {
-            var str = "";
+            var str = "vid:" + this["vid"] + "\n";
             for (prop in this) {
                 if (this.hasOwnProperty(prop)) {
-                    prop_str = prop + ": " + this[prop] + ", ";
+                    prop_str = prop + ": " + this[prop] + "\n";
                     str += prop_str;
                 }
             }
             return str;
         };
+
         return Vertex;
     }());
     YAGL.Vertex = Vertex;

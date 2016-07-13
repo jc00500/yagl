@@ -1,31 +1,24 @@
 var YAGL;
 (function (YAGL) {
 
-    var Edge = (function (eid, v1, v2) {
-        if (v1 === null || v2 === null || eid === null) {
-            // TODO: fix error message.  why?
-            throw new Error("Invalid Construction of Edge");
-        }
-        //TODO ADD EID immutable
+    var Edge = (function (eid, vid1, vid2) {
+
         function Edge(eid, v1, v2) {
+            if (!isInt(eid) || !(v1 instanceof YAGL.Vertex) || !(v2 instanceof YAGL.Vertex)) {
+                throw new Error("Edge: invalid args");
+            }
+
+            Object.defineProperty(this, "eid", {
+                writable:  false,
+                value:  eid
+            });
+
             this.v1 = v1;
             this.v2 = v2;
-            this.eid = eid;
         }
 
-        Edge.prototype.getAdjacentVertex = function (vid) {
-            // TODO: Check that v is a vertex
-            //console.log("checking for (" + vid + " in " + this.toString());
-            if (vid == this.v1.vid) {
-                //console.log(this.v2.vid);
-                return this.v2.vid;
-            } else if (vid == this.v2.vid) {
-                //console.log(this.v2.vid);
-                return this.v1.vid;
-            } else {
-                //console.log("returning null");
-                return null;
-            }
+        Edge.prototype.getEid = function () {
+            return this.eid;
         };
 
         Edge.prototype.getFirst = function () {
@@ -34,6 +27,16 @@ var YAGL;
 
         Edge.prototype.getSecond = function () {
             return this.v2;
+        };
+
+        Edge.prototype.getAdjacentVertex = function (vid) {
+            if (vid == this.v1.vid) {
+                return this.v2.vid;
+            } else if (vid == this.v2.vid) {
+                return this.v1.vid;
+            } else {
+                return null;
+            }
         };
 
         Edge.prototype.equals = function (e) {
