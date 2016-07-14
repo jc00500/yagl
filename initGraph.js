@@ -12,21 +12,25 @@ var initializeGraph = function () {
 
     var e1 = new YAGL.Edge(1, v1, v2);
     var e2 = new YAGL.Edge(2, v2, v3);
-    var e3 = new YAGL.Edge(3, v3, v7);
-    var e4 = new YAGL.Edge(4, v6, v8);
+    var e3 = new YAGL.Edge(3, v3, v1);
+    var e4 = new YAGL.Edge(4, v4, v1);
+    var e5 = new YAGL.Edge(5, v4, v5);
+    var e6 = new YAGL.Edge(6, v6, v5);
+    var e7 = new YAGL.Edge(7, v8, v7);
 
 
     g.addEdge(e1);
     g.addEdge(e2);
     g.addEdge(e3);
     g.addEdge(e4);
-    g.addVertex(v3);
-    g.addVertex(v4);
+    g.addEdge(e5);
+    g.addEdge(e6);
+    g.addEdge(e7);
     g.addVertex(v5);
     g.addVertex(v6);
     g.addVertex(v7);
     g.addVertex(v8);
-    //g.addVertex(v3);
+    g.addVertex(v3);
 
     return g;
 }

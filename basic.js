@@ -8,7 +8,7 @@ var createScene = function () {
     // Now create a basic Babylon Scene object
     var scene = new BABYLON.Scene(engine);
     // This creates and positions a free camera
-    var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+    var camera = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 2, 10, BABYLON.Vector3.Zero(), scene);
     // This targets the camera to scene origin
     camera.setTarget(BABYLON.Vector3.Zero());
     // This attaches the camera to the canvas
@@ -21,10 +21,13 @@ var createScene = function () {
     //var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
 
     var g = initializeGraph();
-    var cheese = new YAGL.Layout(scene, g);
+    //size, stiffness, repulsion, damping, minEnergyThreshold
+    var cheese = new YAGL.ForceDirected(scene, g, 1, .9, .9, .9, .01);
+    cheese.start();
     cheese.placeVertices();
     cheese.placeLines();
     //cheese.removeLines();
+
 
 
 
