@@ -22,10 +22,10 @@ var createScene = function () {
 
     var g = initializeGraph();
     //size, stiffness, repulsion, damping, minEnergyThreshold
-    var cheese = new YAGL.ForceDirected(scene, g, 1, .9, .9, .9, .01);
-    cheese.start();
-    cheese.placeVertices();
-    cheese.placeLines();
+    var Layout = new YAGL.ForceDirected(scene, g, 1, .9, .9, .9, .01);
+    Layout.start();
+    Layout.placeVertices();
+    Layout.placeLines();
     //cheese.removeLines();
 
 

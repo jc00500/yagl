@@ -50,12 +50,8 @@ var YAGL;
         vid = node.getVid();
 		if (!(vid in this.nodePoints)) {
 			var mass = 1.0;
-            /*var vec = new Vector(1, 1);
-            this.nodePoints[vid] = new ForceDirected.Point(vec, mass);*/
-            console.log("creating a new point, possibly");
 			this.nodePoints[vid] = new ForceDirected.Point(Vector.random(), mass);
 		}
-        //console.log(this.nodePoints[vid]);
 		return this.nodePoints[vid];
 	};
 
@@ -69,28 +65,16 @@ var YAGL;
             var edges = this.graph.getEdges(e.v1, e.v2);
 			//var pos1 = this.graph.getEdges(edge.source, edge.target);
 			for(e in edges) {
-                if (existingSpring === false && e.getEid() in this.edgeSprings) {					                existingSpring = this.edgeSprings[e.getEid()];
+                if (existingSpring === false && e.getEid() in this.edgeSprings) {
+                    existingSpring = this.edgeSprings[e.getEid()];
 			    }
             }
 
             if (existingSpring !== false) {
-                 console.log("spring: spring exists");
+
                  return new ForceDirected.Spring(existingSpring.point1, existingSpring.point2, 0.0, 0.0, 0.0);
             }
 
-            /* repeat of 1st segment of code, here for edges going both ways, our edges ignore this
-			var pos2 = this.graph.getEdges(edge.target, edge.source);
-			pos2.forEach(function(e){
-				if (existingSpring === false && e.id in this.edgeSprings) {
-					existingSpring = this.edgeSprings[e.id];
-				}
-			}, this);
-
-			if (existingSpring !== false) {
-				return new ForceDirected.Spring(existingSpring.point2, existingSpring.point1, 0.0, 0.0, 0.0);
-			}*/
-            console.log(e.eid);
-            console.log("spring:  new spring" );
 			this.edgeSprings[e.eid] = new ForceDirected.Spring(
 				this.point(e.getFirst()), this.point(e.getSecond()), length, this.stiffness
 			);
@@ -103,11 +87,8 @@ var YAGL;
 	ForceDirected.prototype.eachNode = function(callback) {
 		var t = this;
         nodes = this.graph.vertices;
-        //write a for in with vertices
+
 		for(vid in nodes) {
-            var p = t.point(nodes[vid]);
-            /*console.log("eachNode P:  ");
-            console.log(p);*/
             callback.call(t, nodes[vid], t.point(nodes[vid]));
 
         }
@@ -116,7 +97,6 @@ var YAGL;
 	// callback should accept two arguments: Edge, Spring
 	ForceDirected.prototype.eachEdge = function(callback) {
 		var t = this;
-         //write a for in with edges
         edges = this.graph.edges;
 		for(eid in edges) {
              callback.call(t, edges[eid], t.spring(edges[eid]));
@@ -126,7 +106,6 @@ var YAGL;
 	// callback should accept one argument: Spring
 	ForceDirected.prototype.eachSpring = function(callback) {
 		var t = this;
-         //write a for in with edges
         edges = this.graph.edges;
 		for(eid in edges) {
              callback.call(t, t.spring(edges[eid]));
@@ -154,9 +133,7 @@ var YAGL;
 
 	ForceDirected.prototype.applyHookesLaw = function() {
 		this.eachSpring(function(spring){
-            console.log("in hookesLaw");
 			var d = spring.point2.p.subtract(spring.point1.p); // the direction of the spring
-            //changing magnitide
 			var displacement = spring.length - d.magnitude();
 			var direction = d.normalise();
 
@@ -195,13 +172,7 @@ var YAGL;
 	ForceDirected.prototype.totalEnergy = function(timestep) {
 		var energy = 0.0;
 		this.eachNode(function(node, point) {
-            /*console.log("in energy");
-            console.log(node);
-            console.log(energy);*/
-            //changing magnitude
-
 			var speed = point.v.magnitude();
-            //console.log("in energy:  " +speed);
 			energy += 0.5 * point.m * speed * speed;
 		});
 
@@ -233,16 +204,8 @@ var YAGL;
 		this._stop = false;
         var run = true;
         var counter = 0;
-
-		//if (onRenderStart !== undefined) { onRenderStart(); }
-        console.log(t.totalEnergy())
-        console.log("edgesprings:");
-        console.log(this.edgeSprings);
         while(run) {
             t.tick(.03);
-            console.log("calling energy");
-            console.log(t.totalEnergy());
-            console.log(this.nodePoints[1].v);
             if(t.totalEnergy() < t.minEnergyThreshold){
                 run = false;
             }
@@ -250,37 +213,15 @@ var YAGL;
         }
         console.log(counter);
         t.stop();
-		/*YAGL.requestAnimationFrame(function step() {
-			t.tick(0.03);
-
-			/*if (render !== undefined) {
-				render();
-			}*/
-
-			// stop simulation when energy of the system goes below a threshold
-			/*if (t._stop || t.totalEnergy() < t.minEnergyThreshold) {
-				t._started = false;
-            }*/
-				/*if (onRenderStop !== undefined) { onRenderStop(); }
-			} else {
-				Springy.requestAnimationFrame(step);
-			}
-		});*/
 	};
 
 	ForceDirected.prototype.stop = function() {
         console.log("stopped");
-        console.log(this.nodePoints);
-        console.log(this.edgeSprings);
 		this._stop = true;
         this._started = false;
 	}
 
 	ForceDirected.prototype.tick = function(timestep) {
-        console.log(this.graph.toString());
-        console.log("tick");
-        /*console.log(this.nodePoints);
-        console.log(this.edgeSprings);*/
 		this.applyCoulombsLaw();
 		this.applyHookesLaw();
 		this.attractToCentre();
@@ -292,7 +233,7 @@ var YAGL;
 	ForceDirected.prototype.nearest = function(pos) {
 		var min = {node: null, point: null, distance: null};
 		var t = this;
-        //write a for in loop here
+
 		this.graph.nodes.forEach(function(n){
 			var point = t.point(n);
             //changing magnitude
@@ -406,14 +347,12 @@ var YAGL;
                 node = this.graph.vertices[vid];
                 if(node.mesh == undefined) {
                     var size = this.size;
-                    //var obj = new BABYLON.Mesh.CreateSphere(vid, 10, size, scene);
                     node.mesh = new BABYLON.Mesh.CreateSphere(vid, 10, size, this.scene, true, BABYLON.Mesh.FRONTSIDE);
-                    //console.log("created sphere");
                     var vector = new BABYLON.Vector3(0, 0, 0)
                     vector.x = this.nodePoints[vid].p.x;
                     vector.y = this.nodePoints[vid].p.y;
                     node.mesh.position = vector;
-                    //this.usedVectors[vid] = [x, y, z]
+
 
                 }
 
@@ -427,10 +366,9 @@ var YAGL;
             for(eid in edges) {
                 lines = [];
                 var vid = edges[eid].getFirst().getVid();
-                console.log("vid:  " + vid);
+
                 lines.push(this.graph.vertices[vid].mesh.position);
                 vid = edges[eid].getSecond().getVid();
-                console.log("vid2:  " + vid);
                 lines.push(this.graph.vertices[vid].mesh.position);
                 //scene.mesh[eid] = edges[eid];
                 edges[eid].mesh = new BABYLON.Mesh.CreateLines(eid, lines, this.scene);
