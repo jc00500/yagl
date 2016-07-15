@@ -5,36 +5,73 @@
        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
       <title>Most Basic Driver</title>
        <style>
-          html, body {
+          body {
               overflow: hidden;
               width: 100%;
               height: 100%;
               margin: 0;
               padding: 0;
+              position: relative
           }
 
           #renderCanvas {
+              z-index: 1;
               width: 100%;
               height: 100%;
               touch-action: none;
           }
-       </style>
 
+          #notes {
+              z-index: 2;
+              visibility: visible;
+              font-size: 0.9em;
+              padding: 30px;
+              background-color: rgba(255, 255, 255, 0.1);
+              color: white;
+              moz-border-radius: 20px;
+              -webkit-border-radius: 20px;
+              border-radius: 20px;
+              position:absolute;
+              top: 0;
+              left: 0;
+           }
+
+          .button {
+              z-index: 2;
+              background-color: #4CAF50;
+              border: none;
+              color: white;
+              padding: 15px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              margin: 4px 2px;
+              cursor: pointer;
+              position:absolute;
+	          top: 0;
+	          right: 0;
+           }
+       </style>
 
    </head>
 
    <body>
+       <div id = "notes"></div>
 
        <canvas id = "renderCanvas"></canvas>
+       <button id = "BFSearch" alt="run search" class="button">BFSearch</button>
 
        <script src = babylon.2.3.js></script>
+
        <script src = util.js></script>
        <script src = vertex.js></script>
        <script src = edge.js></script>
        <script src = graph.js></script>
+
        <script src = initGraph.js></script>
        <script src = forceDirectedLayout.js></script>
-       <script src = basic.js></script>
+       <script src = basicScene.js></script>
 
    </body>
 

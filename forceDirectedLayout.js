@@ -347,7 +347,16 @@ var YAGL;
                 node = this.graph.vertices[vid];
                 if(node.mesh == undefined) {
                     var size = this.size;
-                    node.mesh = new BABYLON.Mesh.CreateSphere(vid, 10, size, this.scene, true, BABYLON.Mesh.FRONTSIDE);
+                    node.mesh = new BABYLON.Mesh.CreateSphere(vid, 10, size, this.scene, true);
+                    node.mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
+                    node.mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
+                    /*
+                    var materialBox = new BABYLON.StandardMaterial("texture1", scene);
+    materialBox.diffuseColor = new BABYLON.Color3(0, 1, 0);//Green
+    var materialBox2 = new BABYLON.StandardMaterial("texture2", scene);
+box1.material = materialBox;
+    box2.material = materialBox2;
+                    */
                     var vector = new BABYLON.Vector3(0, 0, 0)
                     vector.x = this.nodePoints[vid].p.x;
                     vector.y = this.nodePoints[vid].p.y;
@@ -371,7 +380,10 @@ var YAGL;
                 vid = edges[eid].getSecond().getVid();
                 lines.push(this.graph.vertices[vid].mesh.position);
                 //scene.mesh[eid] = edges[eid];
-                edges[eid].mesh = new BABYLON.Mesh.CreateLines(eid, lines, this.scene);
+                //CreateTube("tube", [V1, V2, ..., Vn], radius, tesselation, radiusFunction, cap, scene, false, BABYLON.Mesh.DEFAULTSIDE);
+                edges[eid].mesh = new BABYLON.Mesh.CreateTube(eid, lines, .1, 10, null, false, this.scene);
+                edges[eid].mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
+                edges[eid].mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
             }
             //new BABYLON.Mesh.CreateLines("lines", lines, this.scene);
         };

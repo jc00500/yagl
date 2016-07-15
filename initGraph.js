@@ -1,43 +1,45 @@
-var initializeGraph = function () {
-    var g = new YAGL.Graph();
+var initializeGraph = function (g) {
 
-    var v1 = new YAGL.Vertex(1);
-    var v2 = new YAGL.Vertex(2);
-    var v3 = new YAGL.Vertex(3);
-    var v4 = new YAGL.Vertex(4);
-    var v5 = new YAGL.Vertex(5);
-    var v6 = new YAGL.Vertex(6);
-    var v7 = new YAGL.Vertex(7);
-    var v8 = new YAGL.Vertex(8);
-
-    var e1 = new YAGL.Edge(1, v1, v2);
-    var e3 = new YAGL.Edge(3, v3, v1);
-    var e4 = new YAGL.Edge(4, v4, v1);
-    var e5 = new YAGL.Edge(5, v1, v5);
-    var e6 = new YAGL.Edge(6, v2, v3);
-    var e7 = new YAGL.Edge(7, v2, v4);
-    var e8 = new YAGL.Edge(8, v2, v5);
-    var e9 = new YAGL.Edge(9, v3, v4);
-    var e10 = new YAGL.Edge(10, v3, v5);
-    var e11 = new YAGL.Edge(11, v4, v5);
+//    g.addEdge(new YAGL.Edge(1, new YAGL.Vertex(1), new YAGL.Vertex(1)));
+//    g.addEdge(new YAGL.Edge(2, new YAGL.Vertex(1), new YAGL.Vertex(2)));
+//    g.addEdge(new YAGL.Edge(3, new YAGL.Vertex(3), new YAGL.Vertex(3)));
+//    g.addEdge(new YAGL.Edge(4, new YAGL.Vertex(2), new YAGL.Vertex(4)));
+//    g.addEdge(new YAGL.Edge(5, new YAGL.Vertex(2), new YAGL.Vertex(5)));
+//    g.addEdge(new YAGL.Edge(6, new YAGL.Vertex(3), new YAGL.Vertex(4)));
+//    g.addEdge(new YAGL.Edge(7, new YAGL.Vertex(3), new YAGL.Vertex(6)));
+//    g.addEdge(new YAGL.Edge(8, new YAGL.Vertex(4), new YAGL.Vertex(7)));
+//    g.addEdge(new YAGL.Edge(9, new YAGL.Vertex(4), new YAGL.Vertex(8)));
+//    g.addEdge(new YAGL.Edge(10, new YAGL.Vertex(5), new YAGL.Vertex(9)));
+//    g.addEdge(new YAGL.Edge(11, new YAGL.Vertex(5), new YAGL.Vertex(10)));
+//    g.addEdge(new YAGL.Edge(12, new YAGL.Vertex(6), new YAGL.Vertex(9)));
+//    g.addEdge(new YAGL.Edge(13, new YAGL.Vertex(6), new YAGL.Vertex(11)));
+//    g.addEdge(new YAGL.Edge(14, new YAGL.Vertex(9), new YAGL.Vertex(10)));
+//    g.addEdge(new YAGL.Edge(15, new YAGL.Vertex(9), new YAGL.Vertex(11)));
+//    g.addEdge(new YAGL.Edge(16, new YAGL.Vertex(10), new YAGL.Vertex(11)));
+//    g.addEdge(new YAGL.Edge(17, new YAGL.Vertex(11), new YAGL.Vertex(1)));
+//    g.addEdge(new YAGL.Edge(, new YAGL.Vertex(), new YAGL.Vertex()));
 
 
+    g.addEdge(new YAGL.Edge(1, 1, 2));
+    g.addEdge(new YAGL.Edge(2, 1, 8));
+    g.addEdge(new YAGL.Edge(3, 27, 4));
+    g.addEdge(new YAGL.Edge(4, 9, 13));
+    g.addEdge(new YAGL.Edge(5, 1, 7));
+    g.addEdge(new YAGL.Edge(6, 6, 4));
+    g.addEdge(new YAGL.Edge(7, 9, 7));
+    g.addEdge(new YAGL.Edge(8, 9, 6));
+    g.addEdge(new YAGL.Edge(9, 72, 24));
+    g.addEdge(new YAGL.Edge(10, 17, 7));
+    g.addEdge(new YAGL.Edge(11, 24, 17));
+    g.addEdge(new YAGL.Edge(12, 72, 96));
+    g.addEdge(new YAGL.Edge(13, 96, 69));
+    g.addEdge(new YAGL.Edge(14, 17, 13));
+    g.addEdge(new YAGL.Edge(15, 2, 4));
+    g.addEdge(new YAGL.Edge(16, 4, 9));
+    g.addEdge(new YAGL.Edge(17, 6, 8));
+    g.addEdge(new YAGL.Edge(18, 8, 10));
+    g.addEdge(new YAGL.Edge(19, 10, 12));
+    //g.addEdge(new YAGL.Edge());
 
-    g.addEdge(e1);
-    g.addEdge(e8);
-    g.addEdge(e3);
-    g.addEdge(e4);
-    g.addEdge(e5);
-    g.addEdge(e6);
-    g.addEdge(e7);
-    g.addEdge(e9);
-    g.addEdge(e10);
-    g.addEdge(e11);
-    /*g.addVertex(v5);
-    g.addVertex(v6);
-    g.addVertex(v7);
-    g.addVertex(v8);
-    g.addVertex(v3);
-*/
-    return g;
+
 }

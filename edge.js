@@ -1,11 +1,16 @@
 var YAGL;
 (function (YAGL) {
 
-    var Edge = (function (eid, vid1, vid2) {
+    var Edge = (function () {
 
         function Edge(eid, v1, v2) {
-            if (!isInt(eid) || !(v1 instanceof YAGL.Vertex) || !(v2 instanceof YAGL.Vertex)) {
-                throw new Error("Edge: invalid args");
+            if (!isInt(eid)) {
+                throw new Error("Edge: arg[0] must be an integer");
+            }
+
+            if (!((v1 instanceof YAGL.Vertex && v2 instanceof YAGL.Vertex) ||
+                  (isInt(v1) && isInt(v2)))) {
+                throw new Error("Edge: second and third arguments must be both Vertices or integers");
             }
 
             Object.defineProperty(this, "eid", {
@@ -13,8 +18,15 @@ var YAGL;
                 value:  eid
             });
 
-            this.v1 = v1;
-            this.v2 = v2;
+            if (isInt(v1)) {
+                this.v1 = new YAGL.Vertex(v1);
+                this.v2 = new YAGL.Vertex(v2);
+            }
+            else {
+                this.v1 = v1;
+                this.v2 = v2;
+            }
+
             this.mesh = undefined;
         }
 
