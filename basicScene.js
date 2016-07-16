@@ -26,13 +26,15 @@ var createScene = function () {
     var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 0.5;
 
-    g = new YAGL.Graph();
+    var gp = new YAGL.GraphicsProperties();
+    g = new YAGL.Graph(gp, scene);
     initializeGraph(g);
-    var Layout = new YAGL.ForceDirected(scene, g, 1, .9, .9, .9, .01);
 
+    var Layout = new YAGL.ForceDirected(scene, g, 1, .9, .9, .9, .01);
     Layout.start();
-    Layout.placeVertices();
-    Layout.placeLines();
+
+    //Layout.placeVertices();
+    //Layout.placeLines();
     //cheese.removeLines();
 
     var but = document.getElementById("BFSearch");

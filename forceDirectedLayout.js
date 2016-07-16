@@ -45,6 +45,8 @@ var YAGL;
 		this.edgeSprings = {}; // keep track of springs associated with edges
 	}
 
+
+
 	//any data value is shape properties
     ForceDirected.prototype.point = function(node) {
         vid = node.getVid();
@@ -61,7 +63,7 @@ var YAGL;
 			var length = 1.0;
 
 			var existingSpring = false;
-//change this stuff
+            //change this stuff
             var edges = this.graph.getEdges(e.v1, e.v2);
 			//var pos1 = this.graph.getEdges(edge.source, edge.target);
 			for(e in edges) {
@@ -350,13 +352,7 @@ var YAGL;
                     node.mesh = new BABYLON.Mesh.CreateSphere(vid, 10, size, this.scene, true);
                     node.mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
                     node.mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
-                    /*
-                    var materialBox = new BABYLON.StandardMaterial("texture1", scene);
-    materialBox.diffuseColor = new BABYLON.Color3(0, 1, 0);//Green
-    var materialBox2 = new BABYLON.StandardMaterial("texture2", scene);
-box1.material = materialBox;
-    box2.material = materialBox2;
-                    */
+
                     var vector = new BABYLON.Vector3(0, 0, 0)
                     vector.x = this.nodePoints[vid].p.x;
                     vector.y = this.nodePoints[vid].p.y;
@@ -379,8 +375,7 @@ box1.material = materialBox;
                 lines.push(this.graph.vertices[vid].mesh.position);
                 vid = edges[eid].getSecond().getVid();
                 lines.push(this.graph.vertices[vid].mesh.position);
-                //scene.mesh[eid] = edges[eid];
-                //CreateTube("tube", [V1, V2, ..., Vn], radius, tesselation, radiusFunction, cap, scene, false, BABYLON.Mesh.DEFAULTSIDE);
+
                 edges[eid].mesh = new BABYLON.Mesh.CreateTube(eid, lines, .1, 10, null, false, this.scene);
                 edges[eid].mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
                 edges[eid].mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);

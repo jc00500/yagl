@@ -1,0 +1,32 @@
+var YAGL;
+(function (YAGL) {
+
+    var GraphicsProperties = (function () {
+
+        function GraphicsProperties() {
+            this.framework = "Babylon";
+            this.layout = "forceDirected";
+
+        }
+        
+        GraphicsProperties.prototype.framework = function() {
+            return this.framework;
+        };        
+        
+        GraphicsProperties.prototype.getLayout = function() {
+            return this.layout;
+        };
+
+        GraphicsProperties.prototype.setFramework = function(framework) {
+            this.framework = framework;
+        };
+
+        GraphicsProperties.prototype.setLayout = function(layout) {
+            this.layout = layout;
+        };
+
+        return GraphicsProperties;
+    }());
+    
+    YAGL.GraphicsProperties = GraphicsProperties;
+})(YAGL || (YAGL = {}));

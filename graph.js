@@ -1,7 +1,7 @@
 var YAGL;
 (function (YAGL) {
 
-     var Graph = (function () {
+     var Graph = (function (gp, scene) {
 
         /*
          * Graph is a model for a graph data structure.
@@ -9,18 +9,17 @@ var YAGL;
          *      edges contains a set of YAGL.Edge objects.
          *      adjacencyList is a mapping of vids to arrays of eids.
          *      connectedComponents is a mapping of component root vids to rank values.
+         *      graphicsProperties is a set of properties for displaying the graph
          */
 
-        function Graph() {
+        function Graph(gp, scene) {
             this.vertices = {};             // vid -> Vertex
             this.edges = {};                // eid -> Edge
             this.adjacencyList = {};        // vid -> [eid1 -> vid, eid2 -> vid, ...]
             this.connectedComponents = {};  // root vid -> rank (int)
+            this.graphicsProperties = gp;   // propName -> propValue
+            this.scene = scene;             // Babylonjs scene
         }
-
-        /*******************************************************************************
-         *                         ADD AND REMOVE METHODS
-         *******************************************************************************/
 
         /*
          * addVertex() takes a YAGL.Vertex object as an argument.  It checks to see if v is
@@ -39,14 +38,21 @@ var YAGL;
                 this.vertices[v.vid] = v;
                 this.connectedComponents[v.vid] = 0;  // set rank to 0
 
+                v.mesh = new BABYLON.Mesh.CreateSphere(vid, 10, 1, this.scene, true);
+                v.mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
+                v.mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
+
+                var vector = new BABYLON.Vector3(0, 0, 0);
+                node.mesh.position = vector;
+
                 console.log("addVertex: vertex added (" + v.vid + ")");
+                return v;
             }
             else {
                 console.log("addVertex: vertex not added, already exists (" + v.vid + ")");
                 return null;
             }
 
-            return v;
         };
 
         /*
@@ -75,6 +81,7 @@ var YAGL;
             }
             else {
                 console.log("addEdge: vertex already exists (" + v1.vid + ")");
+                e.v1 = u;
             }
 
             var v = this.getVertex(v2.vid);
@@ -83,6 +90,7 @@ var YAGL;
             }
             else {
                 console.log("addEdge: vertex already exists (" + v2.vid + ")");
+                e.v2 = v;
             }
 
 //            console.log("(vid1)" + u.vid + " (vid2)" + v.vid + " (eid)" + e.eid);
@@ -118,6 +126,17 @@ var YAGL;
             this.edges[e.eid] = e;
 
             console.log("addEdge: edge added (" + e.eid + ")");
+
+            var lines = [];
+            var vid = this.edges[e.eid].getFirst().getVid();
+            lines.push(this.graph.vertices[vid].mesh.position);
+            vid = this.edges[e.eid].getSecond().getVid();
+            lines.push(this.graph.vertices[vid].mesh.position);
+
+            this.edges[e.eid].mesh = new BABYLON.Mesh.CreateTube("e" + e.eid, lines, .1, 10, null, false, this.scene);
+            this.edges[e.eid].mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
+            this.edges[e.eid].mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
+
             return e;
         };
 
@@ -318,6 +337,15 @@ var YAGL;
             return set;
         };
 
+        /*
+         * getGraphicsProperties()
+         */
+
+         Graph.prototype.getGraphicsProperties = function () {
+             return this.graphicsProperties;
+         };
+
+
         /*******************************************************************************
          *                              SETTER METHODS
          *******************************************************************************/
@@ -332,6 +360,14 @@ var YAGL;
             for (vid in this.vertices) {
                 this.vertices[vid].visited = false;
             }
+        };
+
+        /*
+         * setGraphicsProperties(gp)
+         */
+
+        Graph.prototype.setGraphicsProperties = function (gp) {
+            this.graphicsProperties = gp;
         };
 
         /*******************************************************************************

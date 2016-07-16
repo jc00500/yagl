@@ -16,7 +16,7 @@ var YAGL;
             this.data = data;
             this.visited = false;
             this.component = this.vid;
-            this.mesh = undefined;
+            this.mesh = null;
             this.parent = null;
 
         }
