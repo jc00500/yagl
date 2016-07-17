@@ -17,9 +17,16 @@ var YAGL;
             this.edges = {};                // eid -> Edge
             this.adjacencyList = {};        // vid -> [eid1 -> vid, eid2 -> vid, ...]
             this.connectedComponents = {};  // root vid -> rank (int)
+
             this.graphicsProperties = gp;   // propName -> propValue
             this.scene = scene;             // Babylonjs scene
+
+            gp.initialize(this);
         }
+
+        /*******************************************************************************
+         *                          ADD AND REMOVE METHODS
+         *******************************************************************************/
 
         /*
          * addVertex() takes a YAGL.Vertex object as an argument.  It checks to see if v is
@@ -38,12 +45,13 @@ var YAGL;
                 this.vertices[v.vid] = v;
                 this.connectedComponents[v.vid] = 0;  // set rank to 0
 
-                v.mesh = new BABYLON.Mesh.CreateSphere(vid, 10, 1, this.scene, true);
+                v.mesh = new BABYLON.Mesh.CreateSphere(v.vid, 10, 1, this.scene, true);
                 v.mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
                 v.mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
 
-                var vector = new BABYLON.Vector3(0, 0, 0);
-                node.mesh.position = vector;
+                if (this.layoutEngine) {
+                    this.layoutEngine.updateLayout();
+                }
 
                 console.log("addVertex: vertex added (" + v.vid + ")");
                 return v;
@@ -62,7 +70,12 @@ var YAGL;
          * Last, it adds the edge to the list of edges and returns the edge eid.
          */
 
-        Graph.prototype.addEdge = function (e) {
+        Graph.prototype.addEdge = function (e, vid1, vid2) {
+
+            if (isInt(e) && isInt(vid1) && isInt(vid2)) {
+                e = new YAGL.Edge(e, vid1, vid2);
+            }
+
             if(e instanceof YAGL.Edge == false) {
                 throw new Error("addEdge: argument not an Edge");
             }
@@ -75,6 +88,7 @@ var YAGL;
             var v1 = e.v1;
             var v2 = e.v2;
 
+            // use existing vertices with same vid if possible
             var u = this.getVertex(v1.vid);
             if (u === null) {
                 u = this.addVertex(v1);
@@ -93,8 +107,8 @@ var YAGL;
                 e.v2 = v;
             }
 
-//            console.log("(vid1)" + u.vid + " (vid2)" + v.vid + " (eid)" + e.eid);
 
+            // update adjacency list
             if (this.adjacencyList[u.vid] === undefined) {
                 var obj = new Object();
                 obj[e.eid] = v.vid;
@@ -121,22 +135,24 @@ var YAGL;
                 this.unionComponents(u.vid, v.vid);
             }
 
-//            console.log("");
-//            console.log("Added: (" + v1.vid + "," + v2.vid + ")");
+            // add default mesh
+            var path = [];
+            path.push(this.vertices[u.vid].mesh.position);
+            path.push(this.vertices[v.vid].mesh.position);
+
+            e.mesh = new BABYLON.Mesh.CreateTube("e" + e.eid, path, .1, 10, null, BABYLON.Mesh.NO_CAP, this.scene, true);
+            e.mesh.material = new BABYLON.StandardMaterial("mat", this.scene);
+            e.mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
+
+            // add edge to list of edges
             this.edges[e.eid] = e;
 
+            // update layout
+            if (this.layoutEngine) {
+                this.layoutEngine.updateLayout();
+            }
+
             console.log("addEdge: edge added (" + e.eid + ")");
-
-            var lines = [];
-            var vid = this.edges[e.eid].getFirst().getVid();
-            lines.push(this.graph.vertices[vid].mesh.position);
-            vid = this.edges[e.eid].getSecond().getVid();
-            lines.push(this.graph.vertices[vid].mesh.position);
-
-            this.edges[e.eid].mesh = new BABYLON.Mesh.CreateTube("e" + e.eid, lines, .1, 10, null, false, this.scene);
-            this.edges[e.eid].mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
-            this.edges[e.eid].mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
-
             return e;
         };
 
