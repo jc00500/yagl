@@ -43,34 +43,6 @@ var YAGL;
             this.edgeSprings = {}; // keep track of springs associated with edges
         }
 
-        /*
-         * Start simulation if it's not running already.
-         * In case it's running then the call is ignored, and none of the callbacks passed is ever
-         * executed.
-         */
-
-        ForceDirectedLayout.prototype.updateLayout = function() {
-            var t = this;
-
-            if (this._started) return;
-
-            t._started = true;
-            t._stop = false;
-            var run = true;
-            var counter = 0;
-
-            while(run) {
-                t.tick(.03);
-                if(t.totalEnergy() < t.minEnergyThreshold){
-                    run = false;
-                }
-                counter++;
-            }
-
-            console.log(counter);
-            t.stop();
-        };
-
         //any data value is shape properties
         ForceDirectedLayout.prototype.point = function(node) {
             vid = node.getVid();
@@ -188,7 +160,7 @@ var YAGL;
             this.eachNode(function(node, point) {
                 point.p = point.p.add(point.v.multiply(timestep));
 
-                // update the node's mesh's position
+                // update the position of the node's mesh
                 node.mesh.position = new BABYLON.Vector3(point.p.x, point.p.y, 0);
 
                 if (point.p.x == 0 && point.p.y == 0) {
@@ -199,7 +171,7 @@ var YAGL;
                 var eidList = this.graph.adjacencyList[node.vid];
 
                 for (eid in eidList) {
-                    // TODO: need to animate the movement of existing edge rather than create a new one
+                    // TODO: it would be nice animate the movement of existing edge
 
                     var path = [];
 
@@ -232,20 +204,7 @@ var YAGL;
             return energy;
         };
 
-        // borrowed from coffeescript, thanks jashkenas! ;-)
-        var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-        YAGL.requestAnimationFrame = __bind(/*this.requestAnimationFrame ||
-            this.webkitRequestAnimationFrame ||
-            this.mozRequestAnimationFrame ||
-            this.oRequestAnimationFrame ||
-            this.msRequestAnimationFrame ||*/
-            (function(callback, element) {
-                this.setTimeout(callback, 10);
-            }), this);
-
         ForceDirectedLayout.prototype.stop = function() {
-            console.log("stopped");
             this._stop = true;
             this._started = false;
         }
@@ -258,58 +217,38 @@ var YAGL;
             this.updatePosition(timestep);
         };
 
-        // Find the nearest point to a particular position
-        ForceDirectedLayout.prototype.nearest = function(pos) {
-            var min = {node: null, point: null, distance: null};
+        /*
+         * Start simulation if it's not running already.
+         * In case it's running then the call is ignored, and none of the callbacks passed is ever
+         * executed.
+         */
+
+        ForceDirectedLayout.prototype.updateLayout = function() {
             var t = this;
 
-            this.graph.nodes.forEach(function(n){
-                var point = t.point(n);
-                //changing magnitude
-                var distance = point.p.subtract(pos).magnitude();
+            if (this._started) return;
 
-                if (min.distance === null || distance < min.distance) {
-                    min = {node: n, point: point, distance: distance};
+            t._started = true;
+            t._stop = false;
+            var run = true;
+            var counter = 0;
+
+            while(run) {
+                t.tick(.03);
+                if(t.totalEnergy() < t.minEnergyThreshold){
+                    run = false;
                 }
-            });
+                counter++;
+            }
 
-            return min;
+            console.log(counter);
+            t.stop();
         };
 
-        // returns [bottomleft, topright]
-        ForceDirectedLayout.prototype.getBoundingBox = function() {
-            //get shape size
-            var bottomleft = new Vector(-2,-2);
-            var topright = new Vector(2,2);
+        /**********************************************************************
+         *                             VECTOR
+         *********************************************************************/
 
-            this.eachNode(function(n, point) {
-                if (point.p.x < bottomleft.x) {
-                    bottomleft.x = point.p.x;
-                }
-                if (point.p.y < bottomleft.y) {
-                    bottomleft.y = point.p.y;
-                }
-                if (point.p.z < bottomleft.z) {
-                    bottomleft.z = point.p.z;
-                }
-                if (point.p.z > topright.z) {
-                    topright.z = point.p.z;
-                }
-                if (point.p.x > topright.x) {
-                    topright.x = point.p.x;
-                }
-                if (point.p.y > topright.y) {
-                    topright.y = point.p.y;
-                }
-            });
-
-            var padding = topright.subtract(bottomleft).multiply(0.07); // ~5% padding
-
-            return {bottomleft: bottomleft.subtract(padding), topright: topright.add(padding)};
-        };
-
-
-        // Vector
         var Vector = YAGL.Vector = function(x, y) {
             this.x = x;
             this.y = y;
