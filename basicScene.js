@@ -31,8 +31,8 @@ function editNotes(html, textColor) {
 	notes.style.color = textColor;
 }
 
-var path = null;
-var pathIndex = 0;
+/*var path = null;
+var pathIndex;*/
 
 function resetVertexColor() {
     scene.meshes.forEach( function (m) {
@@ -40,19 +40,19 @@ function resetVertexColor() {
     });
 }
 
-var animatePath = function() {
+var animatePath = function(path, pathIndex) {
     var vid = path[pathIndex++];
     g.vertices[vid].mesh.material.diffuseColor = new BABYLON.Color3(255, 0, 0);
     if (pathIndex >= path.length)
-        setInterval(animatePath, 1000);
+        setInterval(animatePath(path, pathIndex), 1000);
 }
 
-var button = document.getElementById("BFSearch");
+/*var button = document.getElementById("findPath");
 button.onclick = function () {
     resetVertexColor();
     path = g.getPath(69, 12);
     setInterval(animatePath, 1000);
-};
+};*/
 
 var html = "YAGL - Yet Another Graph Library";
 editNotes(html, "blue");
@@ -61,18 +61,49 @@ button = document.getElementById("buildGraph");
 button.onclick = function () {
     console.log("building graph");
     buildGraph(g);
-}
+};
 
+var selectedMeshes = [];
+button = document.getElementById("findPath");
+button.onclick = function () {
+    console.log("click assigned to:  pick");
+    selectedMeshes = [];
+    resetVertexColor();
+    scene.onPointerDown = pick;
+    /*console.log("finding path");
+    resetVertexColor();
+    path = g.getPath(vids[0], vids[1]);
+    pathIndex = 0;
+    setInterval(animatePath, 1000);*/
+};
 /*** CREATE SCENE ***/
 var scene = createScene();
 
-scene.onPointerDown = function (evt, pickResult) {
+pick = function(evt, pickResult){
+        console.log("picking Mesh");
+        if (pickResult.hit) {
+             if (pickResult.pickedMesh.name.startsWith("v")) {
+                 selectedMeshes.push(pickResult.pickedMesh.name.substr(1));
+                 console.log("selecting:  " + selectedMeshes[selectedMeshes.length-1]);
+             }
+        }
+        if (selectedMeshes.length > 1) {
+            console.log("finding path between:  " + selectedMeshes[0] + " & " + selectedMeshes[1]);
+            path = g.getPath(Number(selectedMeshes[0]), Number(selectedMeshes[1]));
+            console.log(path);
+            setInterval(animatePath(path, 0), 1000);
+            scene.onPointerDown = selectNode;
+        }
+};
+
+selectNode = function (evt, pickResult) {
 
         if (pickResult.hit) {
             html = pickResult.pickedMesh.name;
             editNotes(html, "blue");
         }
 };
+scene.onPointerDown = selectNode;
 
 // Register a render loop to repeatedly render the scene
 engine.runRenderLoop(function () {

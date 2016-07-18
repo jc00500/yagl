@@ -45,7 +45,7 @@ var YAGL;
                 this.vertices[v.vid] = v;
                 this.connectedComponents[v.vid] = 0;  // set rank to 0
 
-                v.mesh = new BABYLON.Mesh.CreateSphere(v.vid, 10, 1, this.scene, true);
+                v.mesh = new BABYLON.Mesh.CreateSphere("v" + v.vid, 10, 1, this.scene, true);
                 v.mesh.material = new BABYLON.StandardMaterial("MATERIAL", this.scene);
                 v.mesh.material.diffuseColor = new BABYLON.Color3(0, 0, 0);
 

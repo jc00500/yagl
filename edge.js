@@ -87,25 +87,7 @@ var YAGL;
         Edge.prototype.setMesh = function (mesh) {
             this.mesh = mesh;
         };
-    /*function weightedEdge(eid, v1, v2, weight) {
-        this.prototype = new Edge(eid, v1, v2);
-        if(typeof weight == "number") {
-            this.weight = weight;
-        } else {
-            throw new Error("weightedEdge:  weight is not a number");
-        }
 
-        Edge.prototype.getWeight = function () {
-            return this.weight;
-        };
-
-        Edge.prototype.setWeight = function (weight) {
-            if (!(typeof weight == "number")) {
-                throw new Error("setWeight: not setting weight to a number");
-            }
-            this.weight = weight;
-        };
-    }*/
         return Edge;
     }());
     YAGL.Edge = Edge;

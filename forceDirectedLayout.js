@@ -241,7 +241,7 @@ var YAGL;
                 counter++;
             }
 
-            console.log(counter);
+            console.log("counter:  " + counter);
             t.stop();
         };
 
