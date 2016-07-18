@@ -164,7 +164,6 @@ var YAGL;
          */
 
         Graph.prototype.removeVertex = function (vid) {
-            //TODO: fix connected components for  2-1, 3-1. 4-1. remove 1
             var v =  this.vertices[vid];
 
             if (v === undefined) {
@@ -204,9 +203,6 @@ var YAGL;
                 return -1;
             }
 
-//            console.log("removeEdge: vid1 is: " + edge.v1.vid);
-//            console.log("removeEdge: vid2 is: " + edge.v2.vid);
-//            console.log("removeEdge: eid of edge: " + edge.eid);
 
             var vid1 = edge.v1.vid;
             var vid2 = edge.v2.vid;
@@ -324,7 +320,6 @@ var YAGL;
                 return null;
             }
 
-            //console.log("finding edges for " + vid1 + " " + vid2);
             var set = [];
             var e;
 
@@ -335,7 +330,6 @@ var YAGL;
                     set.push(e);
                 }
             }
-            //console.log(set);
             return set;
         };
 
@@ -557,9 +551,8 @@ var YAGL;
             while (queue.length !== 0) {
                 curVid = queue.shift();
 
-                //console.log("inspecting node: " + curVid);
                 if (curVid === stopVid) {
-                    //console.log("found match");
+
                     return curVid;
                 }
 
@@ -573,12 +566,12 @@ var YAGL;
                     if (v.getVisited() === false) {
                         v.setVisited(true);
                         v.setParent(curVid);
-                        //console.log("Set parent of (" + v.vid + ") to (" + curVid +")");
+
                         queue.push(adjVid);
                     }
                 }
             }
-            //console.log("BFSearch: returning null");
+
             return null;
         };
 
@@ -596,7 +589,7 @@ var YAGL;
             var parentVid = this.vertices[vid2].getParent();
 
             while (parentVid != vid1) {
-                //console.log("adding vid (" + parentVid + ")");
+
                 path.push(parentVid);
                 parentVid = this.vertices[parentVid].getParent();
             }
@@ -618,10 +611,8 @@ var YAGL;
             var str = "";
 
             for(vid1 in this.vertices) {
-                //console.log("vid1:  " + vid1);
                 str += vid1 + ":  ";
                 for(eid in this.adjacencyList[vid1]) {
-                        //console.log("eid " + eid);
                         edge = this.edges[eid];
                         vid2 = edge.getAdjacentVertex(vid1);
                         str += vid2 + " ";
