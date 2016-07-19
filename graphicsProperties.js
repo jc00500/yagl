@@ -11,7 +11,8 @@ var YAGL;
 
         GraphicsProperties.prototype.initialize = function(graph) {
             if (this.layout == "forceDirected") {
-                graph.layoutEngine = new YAGL.ForceDirectedLayout(graph, 1, .9, .9, .9, .01);
+                //ForceDirectedLayout(graph, size, stiffness, repulsion, damping, minEnergyThreshold)
+                graph.layoutEngine = new YAGL.ForceDirectedLayout(graph, 1, .9, 10, .9, .01);
             }
 
         };

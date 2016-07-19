@@ -328,6 +328,7 @@ var YAGL;
                 if ((vid1 === e.v1.vid && vid2 === e.v2.vid) ||
                     (vid1 === e.v2.vid && vid2 === e.v1.vid)) {
                     set.push(e);
+                    console.log("edge exists *******");
                 }
             }
             return set;
@@ -597,6 +598,16 @@ var YAGL;
             path.push(vid1);
             return path;
         };
+        /*******************************************************************************
+         *                            CLEAR METHODS
+         *******************************************************************************/
+
+         Graph.prototype.clear = function () {
+            this.vertices = {};
+            this.edges = {};
+            this.adjacencyList = {};
+            this.connectedComponents = {};
+         };
 
         /*******************************************************************************
          *                            DISPLAY METHODS
