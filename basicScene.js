@@ -49,7 +49,7 @@ function resetVertexColor() {
 var button = document.getElementById("buildGraph");
 button.onclick = function () {
     console.log("building graph");
-    buildGraph(g);
+    buildGraph(g, prompt("Please enter build type: \n\t1: Predefined\n\t2: Randomly created\n\t3: Start from Scratch"));
 };
 
 /*** FIND PATH ***/
@@ -57,7 +57,11 @@ button.onclick = function () {
 function animatePath(path, pathIndex) {
     var vid = path[pathIndex++];
     g.vertices[vid].mesh.material.diffuseColor = new BABYLON.Color3(255, 0, 0);
-
+    if(g.vertices[vid].data != undefined){
+        html += g.vertices[vid].data + "\n";
+    } else {
+        html += "Vertex " + vid + " has no data.\n"
+    }
     if (pathIndex < path.length) {
         setInterval(animatePath, 1000, path, pathIndex);
     }
@@ -92,6 +96,8 @@ var pick = function (evt, pickResult) {
                 selectedMeshes.push(pickResult.pickedMesh.name.substr(1));
                 pickResult.pickedMesh.material.diffuseColor = new BABYLON.Color3(0, 0, 255);
                 var path = g.getPath(Number(selectedMeshes[1]), Number(selectedMeshes[0]));
+                html = "Path is:  " + path + "\n";
+                editNotes(html, "blue");
                 animatePath(path, 0);
                 console.log(path);
                 currentAction = "none";

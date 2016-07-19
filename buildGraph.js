@@ -26,14 +26,26 @@ var buildEdges = [[1,1,2],
 
 var buildIndex = 0;
 
-var buildGraph = function (g) {
-    if (buildIndex < buildEdges.length) {
-        var eid = buildEdges[buildIndex][0];
-        var vid1 = buildEdges[buildIndex][1];
-        var vid2 = buildEdges[buildIndex][2];
+var buildGraph = function (g, prompt) {
+    if(prompt == 1) {//predefined
+        if (buildIndex < buildEdges.length) {
+            var eid = buildEdges[buildIndex][0];
+            var vid1 = buildEdges[buildIndex][1];
+            var vid2 = buildEdges[buildIndex][2];
 
-        g.addEdge(eid, vid1, vid2);
-        buildIndex++;
-        setInterval(buildGraph, 1000, g);
+            g.addEdge(eid, vid1, vid2);
+            buildIndex++;
+            setInterval(buildGraph, 1000, g, prompt);
+        }
+    } else if(prompt == 2) {//random creation
+        var size = (Math.random() * 20);
+        var verts = []
+        for (i = 0; i < size; i++){
+            verts.push(new YAGL.Vertex(i));
+        }
+        var edges = Math.random() * 50;
+        for (i = 0; i < edges; i++){
+            g.addEdge(new YAGL.Edge(i, size[(size.length-1) * Math.random()], size[Math.random() * (size.length-1)]));
+        }
     }
 }

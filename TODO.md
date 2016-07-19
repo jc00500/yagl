@@ -21,3 +21,8 @@
 
 # PROJECT
 add pictures to the vertex.data field that is displayed when clicked during runtime
+
+# diolog box for how to load graph
+create random init
+allow start from scratch
+allow preloaded
