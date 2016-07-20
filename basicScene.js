@@ -360,10 +360,29 @@ var pick = function (evt, pickResult) {
 
 scene.onPointerDown = pick;
 
+var rotateCamera = false;
+var step = Math.PI / 360;
+var radius = 35;
+var tick = 0;
+
 // Register a render loop to repeatedly render the scene
 engine.runRenderLoop(function () {
     scene.render();
+
+    if (rotateCamera == true) {
+        var x = radius * Math.sin(step * ++tick);
+		var z = radius * Math.cos(step * tick);
+		var y = 7;
+		scene.activeCamera.setPosition(new BABYLON.Vector3(x,y,z));
+    }
+
 });
+
+/*** ROTATE CAMERA ***/
+button = document.getElementById("rotateCamera");
+button.onclick = function () {
+    rotateCamera = rotateCamera ? false : true;
+};
 
 // Watch for browser/canvas resize events
 window.addEventListener("resize", function () {
