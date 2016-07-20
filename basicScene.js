@@ -253,7 +253,7 @@ button.onclick = function () {
     currentAction = "findPath";
     editNotes("Pick source vertex", "blue");
     selectedMeshes = [];
-    resetMeshColor();
+    colorComponents();
 };
 
 

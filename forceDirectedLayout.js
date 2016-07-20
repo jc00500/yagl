@@ -69,7 +69,6 @@ var YAGL;
                 }
 
                 if (existingSpring !== false) {
-
                      return new ForceDirectedLayout.Spring(existingSpring.point1, existingSpring.point2, 0.0, 0.0, 0.0);
                 }
 
@@ -152,7 +151,7 @@ var YAGL;
         ForceDirectedLayout.prototype.updateVelocity = function(timestep) {
             this.eachNode(function(node, point) {
                 point.v = point.v.add(point.a.multiply(timestep)).multiply(this.damping);
-                point.a = new Vector(0, 0);
+                point.a = new Vector(0, 0, 0);
             });
         };
 
@@ -161,9 +160,9 @@ var YAGL;
                 point.p = point.p.add(point.v.multiply(timestep));
 
                 // update the position of the node's mesh
-                node.mesh.position = new BABYLON.Vector3(point.p.x, point.p.y, 0);
+                node.mesh.position = new BABYLON.Vector3(point.p.x, point.p.y, point.p.z);
 
-                if (point.p.x == 0 && point.p.y == 0) {
+                if (point.p.x == 0 && point.p.y == 0 && point.p.z == 0) {
                     return;
                 }
 
@@ -249,37 +248,38 @@ var YAGL;
          *                             VECTOR
          *********************************************************************/
 
-        var Vector = YAGL.Vector = function(x, y) {
+        var Vector = YAGL.Vector = function(x, y, z) {
             this.x = x;
             this.y = y;
+            this.z = z;
         };
 
         Vector.random = function() {
-            return new Vector(10.0 * (Math.random() - 0.5), 10.0 * (Math.random() - 0.5));
+            return new Vector(10.0 * (Math.random() - 0.5), 10.0 * (Math.random() - 0.5), 10.0 * (Math.random() - 0.5));
         };
 
         Vector.prototype.add = function(v2) {
-            return new Vector(this.x + v2.x, this.y + v2.y);
+            return new Vector(this.x + v2.x, this.y + v2.y, this.z + v2.z);
         };
 
         Vector.prototype.subtract = function(v2) {
-            return new Vector(this.x - v2.x, this.y - v2.y);
+            return new Vector(this.x - v2.x, this.y - v2.y, this.z - v2.z);
         };
 
         Vector.prototype.multiply = function(n) {
-            return new Vector(this.x * n, this.y * n);
+            return new Vector(this.x * n, this.y * n, this.z * n);
         };
 
         Vector.prototype.divide = function(n) {
-            return new Vector((this.x / n) || 0, (this.y / n) || 0); // Avoid divide by zero errors..
+            return new Vector((this.x / n) || 0, (this.y / n) || 0, (this.z / n) || 0); // Avoid divide by zero errors..
         };
 
         Vector.prototype.magnitude = function() {
-            return Math.sqrt(this.x*this.x + this.y*this.y );
+            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
         };
 
         Vector.prototype.normal = function() {
-            return new Vector(-this.y, this.x);
+            return new Vector(-this.y, this.x, this.z);
         };
 
         Vector.prototype.normalise = function() {
@@ -290,8 +290,8 @@ var YAGL;
         ForceDirectedLayout.Point = function(position, mass) {
             this.p = position; // position
             this.m = mass; // mass
-            this.v = new Vector(0, 0); // velocity
-            this.a = new Vector(0, 0); // acceleration
+            this.v = new Vector(0, 0, 0); // velocity
+            this.a = new Vector(0, 0, 0); // acceleration
         };
 
         ForceDirectedLayout.Point.prototype.applyForce = function(force) {
