@@ -57,7 +57,7 @@ var YAGL;
                 return v;
             }
             else {
-                console.log("addVertex: vertex not added, already exists (" + v.vid + ")");
+                //console.log("addVertex: vertex not added, already exists (" + v.vid + ")");
                 return null;
             }
 
@@ -81,7 +81,7 @@ var YAGL;
             }
 
             if (this.getEdge(e.eid) != null) {
-                console.log("addEdge: edge not added, already exists (" + e.eid + ")");
+                //console.log("addEdge: edge not added, already exists (" + e.eid + ")");
                 return null;
             }
 
@@ -94,7 +94,7 @@ var YAGL;
                 u = this.addVertex(v1);
             }
             else {
-                console.log("addEdge: vertex already exists (" + v1.vid + ")");
+                //console.log("addEdge: vertex already exists (" + v1.vid + ")");
                 e.v1 = u;
             }
 
@@ -103,7 +103,7 @@ var YAGL;
                 v = this.addVertex(v2);
             }
             else {
-                console.log("addEdge: vertex already exists (" + v2.vid + ")");
+                //console.log("addEdge: vertex already exists (" + v2.vid + ")");
                 e.v2 = v;
             }
 
