@@ -233,13 +233,6 @@ function animatePath() {
     var vid = path[pathIndex];
     g.vertices[vid].mesh.material.diffuseColor = new BABYLON.Color3(255, 0, 0);
 
-    if(g.vertices[vid].data != undefined){
-        html += g.vertices[vid].data + "<br>";
-    } else {
-        html += "Vertex " + vid + ": no data" + "<br>";
-        editNotes(html);
-    }
-
     pathIndex++;
 
     if (pathIndex == path.length) {
@@ -316,7 +309,22 @@ var pick = function (evt, pickResult) {
         /* Check currentAction and react accordingly */
 
         if (currentAction == "none" && pickResult.hit) {
-            editNotes("<h3>" + pickResult.pickedMesh.name + "</h3>", "blue");
+
+            var type = pickResult.pickedMesh.name[0];
+            var id = Number(pickResult.pickedMesh.name.slice(1));
+
+            if (type == "v") {
+
+                if(g.vertices[id].data != undefined){
+                    html = "Vertex " + id + ": " + g.vertices[id].data + "<br>";
+                } else {
+                    html = "Vertex " + id + ": no data" + "<br>";
+                }
+            } else {
+                html = "Edge " + id + "<br>";
+            }
+            editNotes(html);
+
         }
 
         if (currentAction == "findPath" && pickResult.hit && pickResult.pickedMesh.name.startsWith("v")) {
