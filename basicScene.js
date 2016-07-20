@@ -56,12 +56,14 @@ var button = document.getElementById("buildGraph");
 button.onclick = function () {
     console.log("building graph");
     buildGraph(g, prompt("Please enter build type: \n\t1: Build\n\t2: Randomly Created \n\t3-6: Predefined"));
+
 };
 
 var buildEdges = null;
 var buildEdgesIndex = 0;
 var buildVertices = null;
 var buildVerticesIndex = 0;
+var useData = false;
 
 var buildGraph = function (g, choice) {
     /* TODO: Fix so that meshes are garbage collected */
@@ -72,6 +74,7 @@ var buildGraph = function (g, choice) {
     buildEdges = [];
     buildEdgesIndex = 0;
     buildVerticesIndex = 0;
+    useData = false;
 
     if(choice == 1) {
         var numVertices = Number(prompt("How Many Vertices?"));
@@ -229,13 +232,42 @@ var buildGraph = function (g, choice) {
                 [27,16,13],
                 [28,16,14],
                 [29,16,15]*/];
+    } else if (choice == 99) {
+        useData = true;
+
+        buildVertices = [0,1,2,3,4,5,6,7,8,9,10,11,12,13];
+
+        buildEdges = [
+                [1,1,2],
+                [2,3,4],
+                [3,5,4],
+                [4,7,6],
+                [5,9,8],
+                [6,11,10],
+                [7,12,13],
+                [8,0,1],
+                [9,0,2],
+                [10,0,3],
+                [11,0,4],
+                [12,0,5],
+                [13,0,6],
+                [14,0,7],
+                [15,0,8],
+                [16,0,9],
+                [17,0,10],
+                [18,0,11],
+                [19,0,12],
+                [20,0,13]];
     }
 
     animateVertices();
+
+
 }
 
 var animateVertices = function () {
     if (buildVerticesIndex >= buildVertices.length) {
+
         animateEdges();
         return;
     }
@@ -252,6 +284,24 @@ var animateEdges = function () {
         html = html.substring(0,html.indexOf(">")+1);
         html += "Number of Edges: " + buildEdges.length + "<br>";
         editNotes(html, "green");
+
+        if (useData) {
+            g.vertices[1].data = "John Moran <br><a href=\"https://scontent.xx.fbcdn.net/v/t1.0-1/c0.0.160.160/p160x160/13645090_1010616722347530_2857941506182232688_n.jpg?oh=4aa03d85869ac9ef246189d5a8307c9e&oe=5825E876\">Click for Picture</a>";
+            g.vertices[2].data = "Dr. Eric McGregor <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4474593.jpg\">Click for Picture</a>";
+            g.vertices[3].data = "Meredith Morgan <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4439718.jpg\">Click for Picture</a>";
+            g.vertices[4].data = "Dr. Brian Kelley <br><a href=\"https://www.bridgewater.edu/local/ldap/images/3881661.jpg\">Click for Picture</a>";
+            g.vertices[5].data= "Megan Ford <br><a href=\"https://scontent.xx.fbcdn.net/v/t1.0-9/12990882_10206302385944997_8075945251979837157_n.jpg?oh=46ba7bb460bbc4166fdab6acf97df9c1&oe=581A37A5\">Click for Picture</a>";
+            g.vertices[6].data = "Mathew Wampler <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4317604.jpg\">Click for Picture</a>";
+            g.vertices[7].data = "Dr. Verne Leininger <br><a href=\"https://www.bridgewater.edu/local/ldap/images/1607782.jpg\">Click for Picture</a>";
+            g.vertices[8].data = "Marshall Miller <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4479038.jpg\">Click for Picture</a>";
+            g.vertices[9].data = "Dr. Szymon Stojex <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4495713.jpg\">Click for Picture</a>";
+            g.vertices[10].data = "Jeff Felton <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4493242.jpg\">Click for Picture</a>";
+            g.vertices[11].data = "Dr. Steven Longenecker <br><a href=\"https://www.bridgewater.edu/local/ldap/images/3689747.jpg\">Click for Picture</a>";
+            g.vertices[12].data = "Chandler Parker <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4475195.jpg\">Click for Picture</a>";
+            g.vertices[13].data = "Dr.Tracy Deem <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4133906.jpg\">Click for Picture</a>";
+            g.vertices[0].data = "Pres. David Bushman <br><a href=\"https://www.bridgewater.edu/local/ldap/images/4471895.jpg\">Click for Picture</a>";
+        }
+
         return;
     }
 
