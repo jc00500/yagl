@@ -510,12 +510,12 @@ var YAGL;
          * vid passed in as an arg.
          */
 
-        Graph.prototype.getConnectedVertices = function () {
+        Graph.prototype.getConnectedVertices = function (head) {
             var set = [], vid;
 
             for (vid in this.connectedComponents) {
-                if(set.indexOf(this.findComponent(vid)) == -1) {
-                    set.push(this.findComponent(vid));
+                if(this.findComponent(vid) == this.findComponent(head)) {
+                    set.push(vid);
                 }
             }
             return set;
@@ -633,6 +633,21 @@ var YAGL;
             return str;
         };
 
+
+        Graph.prototype.toHTMLString = function () {
+            var str = "";
+
+            for(vid1 in this.vertices) {
+                str += vid1 + ":  ";
+                for(eid in this.adjacencyList[vid1]) {
+                        edge = this.edges[eid];
+                        vid2 = edge.getAdjacentVertex(vid1);
+                        str += vid2 + " ";
+                }
+                str += "<br>";
+            }
+            return str;
+        };
         Graph.prototype.display = function (scene) {
             //get each vertex and get its shape properties.
             var vid;

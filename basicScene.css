@@ -36,16 +36,16 @@ body {
 }
 
 .roundbutton {
-	width: 70px;
-	height: 70px;
+	width: 80px;
+	height: 80px;
 	background-color: #ffffff;
 	border: 5px solid #000000 ;
 	margin: 3px 7px;
 	color: black;
 	font-size: 0.7em;
-	moz-border-radius: 35px;
-	-webkit-border-radius: 35px;
-	border-radius: 35px;
+	moz-border-radius: 45px;
+	-webkit-border-radius: 45px;
+	border-radius: 45px;
 }
 
 .roundbutton:hover {

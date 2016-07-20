@@ -38,7 +38,7 @@ var html = "YAGL - Yet Another Graph Library";
 editNotes(html, "blue");
 
 /*** RESET COLOR FOR ALL MESHES ***/
-function resetVertexColor() {
+function resetMeshColor() {
     scene.meshes.forEach( function (m) {
         m.material.diffuseColor = new BABYLON.Color3();
     });
@@ -48,7 +48,7 @@ function resetVertexColor() {
 var button = document.getElementById("buildGraph");
 button.onclick = function () {
     console.log("building graph");
-    buildGraph(g, prompt("Please enter build type: \n\t1: Predefined\n\t2: Randomly created\n\t3: Start from Scratch"));
+    buildGraph(g, prompt("Please enter build type: \n\t1: Build\n\t2: Randomly Created \n\t3-6: Predefined"));
 };
 
 /*** FIND PATH ***/
@@ -87,9 +87,26 @@ button.onclick = function () {
     currentAction = "findPath";
     editNotes("Pick source vertex", "blue");
     selectedMeshes = [];
-    resetVertexColor();
+    resetMeshColor();
 };
 
+
+/*** GRAPH PROPERTIES ***/
+button = document.getElementById("graphProperties");
+button.onclick = function () {
+    html = "Graph Properties: <br>";
+    html += g.toHTMLString();
+    editNotes(html, "blue");
+};
+
+/*** COLOR COMPONENTS ***/
+button = document.getElementById("colorComponents");
+button.onclick = function () {
+    resetMeshColor();
+    editNotes("Coloring", "blue");
+    colorComponents();
+
+};
 /*** CREATE SCENE ***/
 var scene = createScene();
 
@@ -157,35 +174,36 @@ var buildGraph = function (g, prompt) {
     buildVerticesIndex = 0;
 
     if(prompt == 1) {
+        var numVertices = prompt("How Many Vertices?");
+        for (var i = 0; i < numVertices; i++) {
+            buildVertices.push(i);
+        }
 
-        buildVertices = [1,2,3,4,5,6,7];
-        /*buildEdges = [
-                [1,1,2],
-                [2,1,3],
-                [3,1,4],
-                [4,1,5],
-                [5,1,6],
-                [6,1,7],
-                [7,2,3],
-                [8,2,4],
-                [9,2,5],
-                [10,2,6],
-                [11,2,7],
-                [12,3,4],
-                [13,3,5],
-                [14,3,6],
-                [15,3,7],
-                [16,4,5],
-                [17,4,6],
-                [18,4,7],
-                [19,5,6],
-                [20,5,7],
-                [21,6,7]];*/
+        var numEdges = prompt("How Many Edges?");
+        var arr;
+        var vid1;
+        var vid2;
+        var createNewEdge;
 
-        buildEdges = [
-                [1,1,2],
-                [2,1,2]];
+        for (var i = 0; i < numEdges; i++){
+            vid1 = Math.round(Math.random() * (numVertices-1));
+            vid2 = Math.round(Math.random() * (numVertices-1));
+            createNewEdge = true
+            var curVid1;
+            var curVid2;
+            for (j in buildEdges) {
+                curVid1 = buildEdges[j][1];
+                curVid2 = buildEdges[j][2];
+                if ((vid1 === curVid1 && vid2 === curVid2) ||
+                    (vid1 === curVid2 && vid2 === curVid1)) {
+                    createNewEdge = false;
+                }
+            }
 
+            if (vid1 != vid2 && createNewEdge) {
+                buildEdges.push([i, vid1, vid2]);
+            }
+        }
     } else if(prompt == 2) {  //random creation
         var numVertices = Math.ceil(Math.random() * 20);
 
@@ -218,9 +236,51 @@ var buildGraph = function (g, prompt) {
                 buildEdges.push([i, vid1, vid2]);
             }
         }
+    } else if (prompt == 3) {
+        buildVertices = [1,2,3,4,5,6,7];
+        buildEdges = [
+                [1,1,2],
+                [2,1,3],
+                [3,1,4],
+                [4,1,5],
+                [5,1,6],
+                [6,1,7],
+                [7,2,3],
+                [8,2,4],
+                [9,2,5],
+                [10,2,6],
+                [11,2,7],
+                [12,3,4],
+                [13,3,5],
+                [14,3,6],
+                [15,3,7],
+                [16,4,5],
+                [17,4,6],
+                [18,4,7],
+                [19,5,6],
+                [20,5,7],
+                [21,6,7]];
+
+    } else if (prompt == 4) {
+        buildVertices = [1,2,3,4,5,6,7];
+
+        buildEdges = [
+                [1,1,2],
+                [2,1,2]];
+    } else if (prompt == 5) {
+        buildVertices = [1,2,3,4,5,6];
+
+        buildEdges = [
+                [1,1,2],
+                [2,3,4],
+                [3,5,6]];
+    } else if (prompt == 6) {
+        buildVertices = [1,2,3,4,5,6,7];
+
+        buildEdges = [
+                [1,1,2],
+                [2,1,2]];
     }
-
-
 
     animateVertices();
 }
@@ -258,6 +318,35 @@ var animateEdges = function () {
 
     buildEdgesIndex++;
     setTimeout(animateEdges, 600);
+};
+
+var colorComponents = function() {
+    console.log("" + g.isConnected());
+    if (g.isConnected()){
+        for(vid in g.vertices){
+            g.vertices[vid].mesh.material.diffuseColor = new BABYLON.Color3(0, 255, 0);
+        }
+    } else {
+        var headVids = [];
+        var colorSet = {};
+        var find = "";
+        for(vid in g.vertices) {
+            find = "";
+            find += g.findComponent(vid);
+            console.log("finds:");
+            console.log(find);
+            console.log("headVids:");
+            console.log(headVids);
+            if (headVids.indexOf(find) == -1) {
+                console.log("adding: " + find);
+                headVids.push(find);
+                colorSet[find] = new BABYLON.Color3((Math.random() * 255), (Math.random() * 255), (Math.random() * 255));
+            }
+            g.vertices[vid].mesh.material.diffuseColor = colorSet[find];
+        }
+    }
+
+    editNotes("Colored!", "blue");
 };
 
 
