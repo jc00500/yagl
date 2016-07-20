@@ -8,13 +8,17 @@ var engine = new BABYLON.Engine(canvas, true);
 
 var createScene = function () {
     var scene = new BABYLON.Scene(engine);
-    scene.clearColor = new BABYLON.Color3(255, 255, 255);
+    scene.clearColor = BABYLON.Color3.Gray();
 
     var camera = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 2, 35, new BABYLON.Vector3(0, 0, 0), scene);
     camera.attachControl(canvas, false);
 
-    var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-    light.intensity = 0.075;
+    var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+    light1.intensity = 0.1;
+
+    var light2 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, -1, 0), scene);
+    light2.intensity = 0.01;
+
 
     g = new YAGL.Graph(new YAGL.GraphicsProperties(), scene);
 
@@ -231,7 +235,7 @@ function animatePath() {
     }
 
     var vid = path[pathIndex];
-    g.vertices[vid].mesh.material.diffuseColor = new BABYLON.Color3(255, 0, 0);
+    g.vertices[vid].mesh.material.diffuseColor = new BABYLON.Color3(15, 0, 0);
 
     pathIndex++;
 
@@ -256,7 +260,7 @@ button.onclick = function () {
 /*** GRAPH PROPERTIES ***/
 button = document.getElementById("graphProperties");
 button.onclick = function () {
-    html = "Graph Properties: <br>";
+    html = "Graph Properties <br><br>";
     html += g.toHTMLString();
     editNotes(html, "blue");
 };
@@ -330,12 +334,12 @@ var pick = function (evt, pickResult) {
         if (currentAction == "findPath" && pickResult.hit && pickResult.pickedMesh.name.startsWith("v")) {
             if (selectedMeshes.length == 0) {
                 selectedMeshes.push(pickResult.pickedMesh.name.substr(1));
-                pickResult.pickedMesh.material.diffuseColor = new BABYLON.Color3(0, 255, 0);
+                pickResult.pickedMesh.material.diffuseColor = new BABYLON.Color3(0, 15, 0);
                 editNotes("Pick target vertex", "blue");
             }
             else if (selectedMeshes.length == 1 && pickResult.hit && pickResult.pickedMesh.name.startsWith("v")) {
                 selectedMeshes.push(pickResult.pickedMesh.name.substr(1));
-                pickResult.pickedMesh.material.diffuseColor = new BABYLON.Color3(0, 0, 255);
+                pickResult.pickedMesh.material.diffuseColor = new BABYLON.Color3(0, 0, 15);
                 path = g.getPath(Number(selectedMeshes[1]), Number(selectedMeshes[0]));
 
                 if (path == null ) {
