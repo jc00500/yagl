@@ -14,10 +14,10 @@ var createScene = function () {
     camera.attachControl(canvas, false);
 
     var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-    light1.intensity = 0.1;
+    light1.intensity = 1.0;
 
-    var light2 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, -1, 0), scene);
-    light2.intensity = 0.01;
+//    var light2 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, -1, 0), scene);
+//    light2.intensity = 1.0;
 
 
     g = new YAGL.Graph(new YAGL.GraphicsProperties(), scene);
@@ -42,12 +42,12 @@ function editNotes(html, textColor) {
 }
 
 var html = "YAGL - Yet Another Graph Library";
-editNotes(html, "blue");
+editNotes(html, "darkgreen");
 
 /*** RESET COLOR FOR ALL MESHES ***/
 function resetMeshColor() {
     scene.meshes.forEach( function (m) {
-        m.material.diffuseColor = new BABYLON.Color3();
+        m.material.diffuseColor = BABYLON.Color3.Black();
     });
 }
 
@@ -56,14 +56,13 @@ var button = document.getElementById("buildGraph");
 button.onclick = function () {
     console.log("building graph");
     buildGraph(g, prompt("Please enter build type: \n\t1: Build\n\t2: Randomly Created \n\t3-6: Predefined"));
-
 };
 
 var buildEdges = null;
 var buildEdgesIndex = 0;
 var buildVertices = null;
 var buildVerticesIndex = 0;
-var useData = false;
+var useData = true;
 
 var buildGraph = function (g, choice) {
     /* TODO: Fix so that meshes are garbage collected */
@@ -267,14 +266,13 @@ var buildGraph = function (g, choice) {
 
 var animateVertices = function () {
     if (buildVerticesIndex >= buildVertices.length) {
-
         animateEdges();
         return;
     }
 
     g.addVertex(new YAGL.Vertex(buildVertices[buildVerticesIndex]));
     html = "Number of Vertices: " + g.getAllVertices().length + "<br>";
-    editNotes(html, "green");
+    editNotes(html, "darkgreen");
     buildVerticesIndex++;
     setTimeout(animateVertices, 400);
 }
@@ -283,7 +281,7 @@ var animateEdges = function () {
     if (buildEdgesIndex >= buildEdges.length) {
         html = html.substring(0,html.indexOf(">")+1);
         html += "Number of Edges: " + buildEdges.length + "<br>";
-        editNotes(html, "green");
+        editNotes(html, "darkgreen");
 
         if (useData) {
             g.vertices[1].data = "John Moran <br><a href=\"https://scontent.xx.fbcdn.net/v/t1.0-1/c0.0.160.160/p160x160/13645090_1010616722347530_2857941506182232688_n.jpg?oh=4aa03d85869ac9ef246189d5a8307c9e&oe=5825E876\">Click for Picture</a>";
@@ -313,7 +311,7 @@ var animateEdges = function () {
 
     html = html.substring(0,html.indexOf(">")+1);
     html += "Number of Edges: " + g.getAllEdges().length + "<br>";
-    editNotes(html, "green");
+    editNotes(html, "darkgreen");
 
     buildEdgesIndex++;
     setTimeout(animateEdges, 600);
@@ -330,7 +328,7 @@ function animatePath() {
     }
 
     var vid = path[pathIndex];
-    g.vertices[vid].mesh.material.diffuseColor = new BABYLON.Color3(15, 0, 0);
+    g.vertices[vid].mesh.material.diffuseColor = BABYLON.Color3.Magenta();
 
     pathIndex++;
 
@@ -345,10 +343,10 @@ function animatePath() {
 
 button = document.getElementById("findPath");
 button.onclick = function () {
-    currentAction = "findPath";
-    editNotes("Pick source vertex", "blue");
-    selectedMeshes = [];
     colorComponents();
+    currentAction = "findPath";
+    editNotes("Pick source vertex", "darkgreen");
+    selectedMeshes = [];
 };
 
 
@@ -357,23 +355,21 @@ button = document.getElementById("graphProperties");
 button.onclick = function () {
     html = "Graph Properties <br><br>";
     html += g.toHTMLString();
-    editNotes(html, "blue");
+    editNotes(html, "darkgreen");
 };
 
 /*** COLOR COMPONENTS ***/
 button = document.getElementById("colorComponents");
 button.onclick = function () {
-    resetMeshColor();
-    editNotes("Coloring", "blue");
     colorComponents();
-
 };
 
 var colorComponents = function() {
     console.log("" + g.isConnected());
     if (g.isConnected()){
+        var color = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
         for(vid in g.vertices){
-            g.vertices[vid].mesh.material.diffuseColor = new BABYLON.Color3(0, 255, 0);
+            g.vertices[vid].mesh.material.diffuseColor = color;
         }
     } else {
         var headVids = [];
@@ -382,25 +378,18 @@ var colorComponents = function() {
         for(vid in g.vertices) {
             find = "";
             find += g.findComponent(vid);
-            console.log("finds:");
-            console.log(find);
-            console.log("headVids:");
-            console.log(headVids);
+
             if (headVids.indexOf(find) == -1) {
                 console.log("adding: " + find);
                 headVids.push(find);
-                //colorSet[find] = new BABYLON.Color3(0, 255, 0);
-                var red = new Number(Math.round(Math.random() * 15));
-                var green = new Number(Math.round(Math.random() * 15));
-                var blue = new Number(Math.round(Math.random() * 15));
-                //console.log(red + " *** " + green + " *** " + blue );
-                colorSet[find] = new BABYLON.Color3(red, green, blue);
+                colorSet[find] = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
             }
+
             g.vertices[vid].mesh.material.diffuseColor = colorSet[find];
         }
     }
 
-    editNotes("Colored!", "blue");
+    editNotes("Colored!", "darkgreen");
 };
 
 var pick = function (evt, pickResult) {
@@ -422,19 +411,20 @@ var pick = function (evt, pickResult) {
             } else {
                 html = "Edge " + id + "<br>";
             }
-            editNotes(html);
+            editNotes(html, "darkgreen");
 
         }
 
         if (currentAction == "findPath" && pickResult.hit && pickResult.pickedMesh.name.startsWith("v")) {
             if (selectedMeshes.length == 0) {
                 selectedMeshes.push(pickResult.pickedMesh.name.substr(1));
-                pickResult.pickedMesh.material.diffuseColor = new BABYLON.Color3(0, 15, 0);
-                editNotes("Pick target vertex", "blue");
+                pickResult.pickedMesh.material.diffuseColor = BABYLON.Color3.Green();
+                editNotes("Pick target vertex", "darkgreen");
             }
             else if (selectedMeshes.length == 1 && pickResult.hit && pickResult.pickedMesh.name.startsWith("v")) {
                 selectedMeshes.push(pickResult.pickedMesh.name.substr(1));
-                pickResult.pickedMesh.material.diffuseColor = new BABYLON.Color3(0, 0, 15);
+                pickResult.pickedMesh.material.diffuseColor = BABYLON.Color3.Green();
+
                 path = g.getPath(Number(selectedMeshes[1]), Number(selectedMeshes[0]));
 
                 if (path == null ) {
@@ -444,7 +434,7 @@ var pick = function (evt, pickResult) {
                 } else {
                     html = "Path:  " + path + "<br>";
                 }
-                editNotes(html, "blue");
+                editNotes(html, "darkgreen");
 
                 pathIndex = 0;
                 animatePath();
